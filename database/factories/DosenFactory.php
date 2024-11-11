@@ -9,6 +9,13 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class DosenFactory extends Factory
 {
+
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = \App\Models\Dosen::class;
     /**
      * Define the model's default state.
      *
@@ -18,6 +25,10 @@ class DosenFactory extends Factory
     {
         return [
             //
+            'kbk_id' => $this->faker->randomElement([1, 2]),
+            'user_id' => \App\Models\User::factory(),
+            'nidn' => $this->faker->unique()->numerify('##########'),
+            'role' => $this->faker->randomElement(['dosen', 'dosen_koordinator']),
         ];
     }
 }

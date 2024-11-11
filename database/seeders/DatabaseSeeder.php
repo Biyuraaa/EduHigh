@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
 
         Dosen::create([
             'user_id' => $dosen->id,
+            'kbk_id' => 1,
             'nidn' => '1234567890',
             'role' => 'dosen',
         ]);
@@ -45,7 +46,10 @@ class DatabaseSeeder extends Seeder
         Dosen::create([
             'user_id' => $dosen_koordinatior->id,
             'nidn' => '0987654321',
+            'kbk_id' => 1,
             'role' => 'dosen_koordinator',
         ]);
+
+        Dosen::factory(10)->create();
     }
 }

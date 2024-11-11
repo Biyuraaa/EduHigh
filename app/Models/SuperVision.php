@@ -23,4 +23,9 @@ class SuperVision extends Model
     {
         return $this->belongsTo(Dosen::class);
     }
+
+    public function mahasiswa(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Mahasiswa::class);
+    }
 }

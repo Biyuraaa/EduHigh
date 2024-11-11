@@ -26,4 +26,9 @@ class Schedule extends Model
     {
         return $this->belongsTo(Dosen::class);
     }
+
+    public function appointments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Appointment::class);
+    }
 }

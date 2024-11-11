@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('mahasiswa_id')->constrained()->onDelete('cascade');
             $table->enum('status', ['pending', 'approved', 'rejected']);
             $table->text('reason')->nullable();
+            $table->unique(['schedule_id', 'mahasiswa_id']);
             $table->timestamps();
         });
     }

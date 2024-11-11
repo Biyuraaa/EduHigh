@@ -15,9 +15,10 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('dosen_id')->nullable(false);
             $table->unsignedBigInteger('mahasiswa_id')->nullable(false);
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->enum('status', ['pending', 'approved', 'rejected', 'completed',])->default('pending');
             $table->text('comment')->nullable();
             $table->enum('dosen_pembimbing', ['pembimbing_1', 'pembimbing_2'])->nullable();
+            $table->unique(['dosen_id', 'mahasiswa_id']);
             $table->timestamps();
         });
     }

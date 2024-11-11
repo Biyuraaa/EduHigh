@@ -21,4 +21,9 @@ class kbk extends Model
     {
         return $this->hasMany(Subkbk::class);
     }
+
+    public function dosen(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Dosen::class);
+    }
 }

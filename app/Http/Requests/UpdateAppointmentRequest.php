@@ -5,14 +5,14 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class StoreSuperVisionRequest extends FormRequest
+class UpdateAppointmentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return Auth::check();
+        return Auth::user()->role == 'dosen';
     }
 
     /**
@@ -23,9 +23,11 @@ class StoreSuperVisionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'mahasiswa_id' => 'required|exists:mahasiswas,id',
-            'dosen_id' => 'required|exists:dosens,id',
             //
+            'mahasiswa_id' => 'required|exists:mahasiswas,id',
+            'schedule_id' => 'required|exists:schedules,id',
+            'status' => 'required|in:approved,rejected',
+            'reason' => 'required_if:status,rejected',
         ];
     }
 }

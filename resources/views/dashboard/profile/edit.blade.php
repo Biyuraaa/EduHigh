@@ -33,11 +33,19 @@
                                     <input type="email" class="form-control" name="email" id="email"
                                         value="{{ Auth::user()->email }}" disabled>
                                 </div>
-                                <div class="input-group input-group-outline mb-4">
-                                    <label for="nim" class="form-label"></label>
-                                    <input type="text" class="form-control" name="nim" id="nim"
-                                        value="{{ Auth::user()->mahasiswa->nim }}" disabled>
-                                </div>
+                                @if (Auth::user()->role == 'mahasiswa')
+                                    <div class="input-group input-group-outline mb-4">
+                                        <label for="nim" class="form-label"></label>
+                                        <input type="text" class="form-control" name="nim" id="nim"
+                                            value="{{ Auth::user()->mahasiswa->nim }}" disabled>
+                                    </div>
+                                @else
+                                    <div class="input-group input-group-outline mb-4">
+                                        <label for="nidn" class="form-label"></label>
+                                        <input type="text" class="form-control" name="nidn" id="nidn"
+                                            value="{{ Auth::user()->dosen->nidn }}" disabled>
+                                    </div>
+                                @endif
                                 <div class="input-group input-group-static mb-4">
                                     <label for="name">Name</label>
                                     <input type="text" class="form-control" name="name" id="name"

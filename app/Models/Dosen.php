@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Dosen extends Model
 {
@@ -33,5 +33,10 @@ class Dosen extends Model
     public function superVisions(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(SuperVision::class);
+    }
+
+    public function kbk(): BelongsTo
+    {
+        return $this->belongsTo(Kbk::class);
     }
 }

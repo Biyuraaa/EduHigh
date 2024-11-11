@@ -17,12 +17,17 @@
                                     alt="Profile Picture" class="profile-pic mb-4" id="profilePic"
                                     style="width: 150px;height: 150px; border-radius: 50%;object-fit:cover">
                             @else
-                                <img src="https://via.placeholder.com/150" alt="Profile Picture"
-                                    class="profile-pic mb-4" id="profilePic">
+                                <img src="{{ asset('assets/img/default.png') }}" alt="Profile Picture"
+                                    class="profile-pic mb-4" id="profilePic"
+                                    style="max-width: 150px; max-height: 150px">
                             @endif
                             <h3 class="card-title h2 mb-3">{{ Auth::user()->name }}</h3>
                             <p class="card-text mb-2"><strong>Email:</strong> {{ Auth::user()->email }}</p>
-                            <p class="card-text mb-2"><strong>NIM:</strong> {{ Auth::user()->mahasiswa->nim }}</p>
+                            @if (Auth::user()->role == 'mahasiswa')
+                                <p class="card-text mb-2"><strong>NIM:</strong> {{ Auth::user()->mahasiswa->nim }}</p>
+                            @else
+                                <p class="card-text mb-2"><strong>NIP:</strong> {{ Auth::user()->dosen->nidn }}</p>
+                            @endif
                             <p class="card-text mb-2"><strong>Address:</strong> {{ Auth::user()->address ?? '-' }}</p>
                             <p class="card-text mb-2"><strong>Phone Number:</strong> {{ Auth::user()->phone ?? '-' }}
                             </p>

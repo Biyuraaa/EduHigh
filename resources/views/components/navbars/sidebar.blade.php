@@ -41,15 +41,84 @@
                     <span class="nav-link-text ms-1">Proposal</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link text-white {{ $activePage == 'dosen-pembimbing' ? ' active bg-gradient-primary' : '' }} "
-                    href="{{ route('supervision.index') }}">
-                    <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="material-icons opacity-10">person</i>
-                    </div>
-                    <span class="nav-link-text ms-1">Dosen Pembimbing</span>
-                </a>
-            </li>
+            @if (Auth::user()->role == 'mahasiswa')
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ $activePage == 'dosen-pembimbing' ? ' active bg-gradient-primary' : '' }} "
+                        href="{{ route('supervisions.index') }}">
+                        <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="material-icons opacity-10">person</i>
+                        </div>
+                        <span class="nav-link-text ms-1">Dosen Pembimbing</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ $activePage == 'pengajuan-bimbingan' ? ' active bg-gradient-primary' : '' }}  "
+                        href="{{ route('schedules.index') }}">
+                        <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="material-icons opacity-10">assignment_ind</i>
+                        </div>
+                        <span class="nav-link-text ms-1">Pengajuan Bimbingan</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ $activePage == 'jadwal-bimbingan' ? ' active bg-gradient-primary' : '' }}  "
+                        href="{{ route('appointments.index') }}">
+                        <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="material-icons opacity-10">schedule</i>
+                        </div>
+                        <span class="nav-link-text ms-1">Jadwal Bimbingan</span>
+                    </a>
+                </li>
+            @endif
+
+            @if (Auth::user()->role == 'dosen')
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ $activePage == 'mahasiswa-bimbingan' ? ' active bg-gradient-primary' : '' }} "
+                        href="{{ route('supervisions.index') }}">
+                        <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="material-icons opacity-10">people</i>
+                        </div>
+                        <span class="nav-link-text ms-1">Mahasiswa Bimbingan</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ $activePage == 'pengajuan-mahasiswa' ? ' active bg-gradient-primary' : '' }} "
+                        href="{{ route('supervisions.request') }}">
+                        <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="material-icons opacity-10">people</i>
+                        </div>
+                        <span class="nav-link-text ms-1">Pengajuan Mahasiswa</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ $activePage == 'daftar-penelitian' ? ' active bg-gradient-primary' : '' }}  "
+                        href="">
+                        <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="material-icons opacity-10">list</i>
+                        </div>
+                        <span class="nav-link-text ms-1">Daftar Penelitian</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ $activePage == 'jadwal-bimbingan' ? ' active bg-gradient-primary' : '' }}  "
+                        href="{{ route('schedules.index') }}">
+                        <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="material-icons opacity-10">schedule</i>
+                        </div>
+                        <span class="nav-link-text ms-1">Jadwal Bimbingan</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ $activePage == 'pengajuan-bimbingan' ? ' active bg-gradient-primary' : '' }}  "
+                        href="{{ route('appointments.index') }}">
+                        <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="material-icons opacity-10">people</i>
+                        </div>
+                        <span class="nav-link-text ms-1">Pengajuan Bimbingan</span>
+                    </a>
+                </li>
+            @endif
             <li class="nav-item">
                 <a class="nav-link text-white {{ $activePage == 'log-book' ? ' active bg-gradient-primary' : '' }}  "
                     href="">
@@ -59,24 +128,9 @@
                     <span class="nav-link-text ms-1">Log Book</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link text-white {{ $activePage == 'jadwal-bimbingan' ? ' active bg-gradient-primary' : '' }}  "
-                    href="">
-                    <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="material-icons opacity-10">schedule</i>
-                    </div>
-                    <span class="nav-link-text ms-1">Jadwal Bimbingan</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-white {{ $activePage == 'daftar-penelitian' ? ' active bg-gradient-primary' : '' }}  "
-                    href="">
-                    <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="material-icons opacity-10">list</i>
-                    </div>
-                    <span class="nav-link-text ms-1">Daftar Penelitian</span>
-                </a>
-            </li>
+
+
+
             <li class="nav-item">
                 <a class="nav-link text-white {{ $activePage == 'notifications' ? ' active bg-gradient-primary' : '' }}  "
                     href="">
@@ -84,14 +138,6 @@
                         <i class="material-icons opacity-10">notifications</i>
                     </div>
                     <span class="nav-link-text ms-1">Notifications</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-white " href="">
-                    <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="material-icons opacity-10">logout</i>
-                    </div>
-                    <span class="nav-link-text ms-1">Logout</span>
                 </a>
             </li>
         </ul>

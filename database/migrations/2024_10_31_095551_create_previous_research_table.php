@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('previous_researches', function (Blueprint $table) {
             $table->id();
             $table->foreignId('proposal_id')->constrained()->onDelete('cascade');
-            $table->string('title')->nullable(false);
-            $table->string('authors')->nullable(false);
-            $table->string('doi')->nullable(false);
-            $table->text('problem_statement')->nullable(false);
-            $table->text('results')->nullable(false);
+            $table->string('title')->nullable();
+            $table->string('authors')->nullable();
+            $table->string('doi')->nullable();
+            $table->text('problem_statement')->nullable();
+            $table->text('results')->nullable();
             $table->timestamps();
         });
     }

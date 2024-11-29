@@ -34,4 +34,14 @@ class Mahasiswa extends Model
     {
         return $this->hasMany(SuperVision::class);
     }
+
+    public function seminarProposal(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(SeminarProposal::class);
+    }
+
+    public function resultSeminar(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(ResultSeminar::class);
+    }
 }

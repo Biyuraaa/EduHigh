@@ -39,4 +39,19 @@ class Dosen extends Model
     {
         return $this->belongsTo(Kbk::class);
     }
+
+    public function proposalAssesments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ProposalAssessment::class);
+    }
+
+    public function seminarProposalReviews(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SeminarProposalReview::class);
+    }
+
+    public function resultAssessments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ResultAssessment::class);
+    }
 }

@@ -10,6 +10,7 @@ use App\Models\Dosen;
 use App\Models\Mahasiswa;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class SuperVisionController extends Controller
 {
@@ -21,6 +22,11 @@ class SuperVisionController extends Controller
         if (Auth::user()->role == 'mahasiswa') {
             $proposal = Auth::user()->proposal;
 
+            // Get approved supervisions for student
+            $approvedSupervision = Auth::user()->mahasiswa->superVisions()
+                ->where('status', 'approved')
+                ->get();
+
             if ($proposal) {
                 $kbkId = $proposal->subkbk->kbk_id;
 
@@ -29,19 +35,28 @@ class SuperVisionController extends Controller
                     ->orderByDesc('supervisions_count')
                     ->get();
 
-                return view('dashboard.mahasiswa.supervisions.index', compact('dosens'));
-            } else {
-                return view('dashboard.mahasiswa.supervisions.index', ['dosens' => collect()]);
+                return view('dashboard.mahasiswa.supervisions.index', [
+                    'dosens' => $dosens,
+                    'approvedSupervision' => $approvedSupervision
+                ]);
             }
-        } else {
-            $dosenId = Auth::user()->dosen->id; // Ambil ID dosen yang sedang login
-            $students = Mahasiswa::whereHas('supervisions', function ($query) use ($dosenId) {
-                $query->where('dosen_id', $dosenId)
-                    ->where('status', 'approved');
-            })->get();
 
-            return view('dashboard.dosen.supervisions.index', compact('students'));
+            return view('dashboard.mahasiswa.supervisions.index', [
+                'dosens' => collect(),
+                'approvedSupervision' => $approvedSupervision
+            ]);
         }
+
+        // For dosen role
+        $dosenId = Auth::user()->dosen->id;
+        $students = Mahasiswa::whereHas('supervisions', function ($query) use ($dosenId) {
+            $query->where('dosen_id', $dosenId)
+                ->where('status', 'approved');
+        })
+            ->with(['user', 'supervisions.dosen'])
+            ->get();
+
+        return view('dashboard.dosen.supervisions.index', compact('students'));
     }
 
 
@@ -85,6 +100,18 @@ class SuperVisionController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('supervisions.index')->with('error', 'Supervisi gagal ditambahkan');
         }
+    }
+
+    public function showKoordinasiPembimbing()
+    {
+        $mahasiswas = Mahasiswa::whereHas('superVisions', function ($query) {
+            $query->where('dosen_pembimbing', 'pembimbing_1')
+                ->where('status', 'approved');
+        })->whereDoesntHave('superVisions', function ($query) {
+            $query->where('dosen_pembimbing', 'pembimbing_2');
+        })->with('user.proposal.subkbk.kbk.dosen.user')->get();
+
+        return view('dashboard.dosen.supervisions.showKoordinasiPembimbing', compact('mahasiswas'));
     }
 
 
@@ -145,6 +172,7 @@ class SuperVisionController extends Controller
     {
 
 
+
         $students = Auth::user()->dosen->superVisions->where('status', 'pending');
         return view('dashboard.dosen.supervisions.request', compact('students'));
     }
@@ -154,12 +182,20 @@ class SuperVisionController extends Controller
         $request->validate([
             'supervision_id' => 'required|exists:super_visions,id',
         ]);
-        $supervision = SuperVision::find(request('supervision_id'));
-        $supervision->status = 'approved';
-        $supervision->dosen_pembimbing = 'pembimbing_1';
-        $supervision->save();
-
-        return redirect()->route('supervisions.request')->with('success', 'Supervisi berhasil diterima');
+        try {
+            $supervision = SuperVision::find($request->supervision_id);
+            $supervision->status = 'approved';
+            $supervision->dosen_pembimbing = 'pembimbing_1';
+            $supervision->save();
+            SuperVision::where('mahasiswa_id', $supervision->mahasiswa_id)
+                ->where('status', 'pending')
+                ->where('id', '!=', $supervision->id)
+                ->delete();
+            return redirect()->route('supervisions.request')->with('success', 'Supervisi berhasil diterima');
+        } catch (\Exception $e) {
+            Log::error('Error : ' . $e->getMessage());
+            return redirect()->route('supervisions.request')->with('error', 'Suprervisi gagal diterima');
+        }
     }
 
     public function reject(Request $request)
@@ -174,5 +210,23 @@ class SuperVisionController extends Controller
         $supervision->save();
 
         return redirect()->route('supervisions.request')->with('success', 'Supervisi berhasil ditolak');
+    }
+
+
+    public function assignPembimbing2(Request $request)
+    {
+        $request->validate([
+            'mahasiswa_id' => 'required|exists:mahasiswas,id',
+            'dosen_id' => 'required|exists:dosens,id',
+        ]);
+
+        $mahasiswa = Mahasiswa::find($request->mahasiswa_id);
+        $mahasiswa->superVisions()->create([
+            'dosen_id' => $request->dosen_id,
+            'dosen_pembimbing' => 'pembimbing_2',
+            'status' => 'approved',
+        ]);
+
+        return redirect()->route('supervisions.showKoordinasiPembimbing')->with('success', 'Pembimbing 2 berhasil ditetapkan.');
     }
 }

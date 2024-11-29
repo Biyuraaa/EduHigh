@@ -8,6 +8,7 @@ use App\Http\Requests\StoreProposalRequest;
 use App\Http\Requests\UpdateProposalRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Models\SubKbk;
+use Illuminate\Support\Facades\Log;
 
 class ProposalController extends Controller
 {
@@ -47,62 +48,55 @@ class ProposalController extends Controller
      */
     public function store(StoreProposalRequest $request)
     {
-        //
-
-        $request->validated();
-
-
+        $validatedData = $request->validated();
 
         try {
             $proposal = Proposal::create([
-                'topic' => $request->topic,
-                'background' => $request->background,
-                'subkbk_id' => $request->subkbk_id,
+                'topic' => $validatedData['topic'],
+                'background' => $validatedData['background'],
+                'subkbk_id' => $validatedData['subkbk_id'],
                 'user_id' => Auth::user()->id,
             ]);
 
-            foreach ($request->titles as $name) {
-                $proposal->titles()->create([
-                    'name' => $name,
-                ]);
+            if (!empty($validatedData['titles'])) {
+                foreach ($validatedData['titles'] as $name) {
+                    $proposal->titles()->create(['name' => $name]);
+                }
             }
 
-            foreach ($request->backgroundReasons as $backgroundReason) {
-                $proposal->backgroundReasons()->create([
-                    'reason' => $backgroundReason,
-                ]);
+            if (!empty($validatedData['backgroundReasons'])) {
+                foreach ($validatedData['backgroundReasons'] as $backgroundReason) {
+                    $proposal->backgroundReasons()->create(['reason' => $backgroundReason]);
+                }
             }
 
-
-
-            foreach ($request->previousResearch as $previousResearch) {
-                $proposal->previousResearches()->create([
-                    'title' => $previousResearch['title'],
-                    'doi' => $previousResearch['doi'],
-                    'authors' => $previousResearch['authors'],
-                    'problem_statement' => $previousResearch['problem'],
-                    'results' => $previousResearch['results'],
-                ]);
+            if (!empty($validatedData['previousResearches'])) {
+                foreach ($validatedData['previousResearches'] as $previousResearch) {
+                    $proposal->previousResearches()->create([
+                        'title' => $previousResearch['title'],
+                        'doi' => $previousResearch['doi'],
+                        'authors' => $previousResearch['authors'],
+                        'problem_statement' => $previousResearch['problem_statement'],
+                        'results' => $previousResearch['results'],
+                    ]);
+                }
             }
 
-
-
-            foreach ($request->researchQuestions as $researchQuestion) {
-                $proposal->researchQuestions()->create([
-                    'question' => $researchQuestion,
-                ]);
+            if (!empty($validatedData['researchQuestions'])) {
+                foreach ($validatedData['researchQuestions'] as $researchQuestion) {
+                    $proposal->researchQuestions()->create(['question' => $researchQuestion]);
+                }
             }
 
-
-
-            foreach ($request->researchOutputs as $researchOutput) {
-                $proposal->outputs()->create([
-                    'research_output' => $researchOutput,
-                ]);
+            if (!empty($validatedData['outputs'])) {
+                foreach ($validatedData['outputs'] as $researchOutput) {
+                    $proposal->outputs()->create(['research_output' => $researchOutput]);
+                }
             }
 
             return redirect()->route('proposals.index')->with('status', 'proposal-created');
         } catch (\Exception $e) {
+            Log::error('Error: ' . $e->getMessage());
             return redirect()->back()->with('status', 'proposal-created-failed');
         }
     }

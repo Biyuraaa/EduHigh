@@ -16,6 +16,7 @@ class SuperVision extends Model
         'dosen_id',
         'mahasiswa_id',
         'status',
+        'dosen_pembimbing',
     ];
 
 

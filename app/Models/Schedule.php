@@ -19,6 +19,7 @@ class Schedule extends Model
         'end_time',
         'location',
         'quota',
+        'remaining_quota',
     ];
 
 

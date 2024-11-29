@@ -13,12 +13,14 @@ return new class extends Migration
     {
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('dosen_id')->constrained()->onDelete('cascade');
-            $table->date('schedule_date')->nullable(false);
-            $table->time('start_time')->nullable(false);
-            $table->time('end_time')->nullable(false);
+            $table->foreignId('dosen_id')->constrained('users')->onDelete('cascade'); // Pastikan dosen ada di tabel users
+            $table->date('schedule_date');
+            $table->time('start_time');
+            $table->time('end_time');
             $table->string('location')->nullable();
-            $table->integer('quota')->nullable();
+            $table->integer('quota')->nullable()->default(1); // Default 1 jika tidak diisi
+            $table->integer('remaining_quota')->nullable()->default(1); // Kuota yang tersisa
+            $table->text('description')->nullable(); // Deskripsi jadwal
             $table->timestamps();
         });
     }

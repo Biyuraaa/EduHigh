@@ -16,19 +16,18 @@ class ScheduleController extends Controller
      */
     public function index()
     {
-        //
         if (Auth::user()->role == 'dosen') {
-            $schedules = Schedule::where('dosen_id', Auth::user()->dosen->id)->get();
+            $schedules = Schedule::where('dosen_id', Auth::user()->dosen->id)->paginate(10);
             return view('dashboard.dosen.schedules.index', compact('schedules'));
         } else if (Auth::user()->role == 'admin') {
-            $schedules = Schedule::all();
+            $schedules = Schedule::paginate(10);
             return view('dashboard.admin.schedules.index', compact('schedules'));
         } else {
             $approvedSupervision = Auth::user()->mahasiswa->superVisions->where('status', 'approved')->first();
 
             if ($approvedSupervision) {
                 // Ambil jadwal yang dibuat oleh dosen pembimbing yang disetujui
-                $schedules = Schedule::where('dosen_id', $approvedSupervision->dosen_id)->get();
+                $schedules = Schedule::where('dosen_id', $approvedSupervision->dosen_id)->paginate(10);
             } else {
                 // Jika belum memiliki dosen pembimbing yang disetujui, jadwal kosong
                 $schedules = collect();
@@ -67,6 +66,7 @@ class ScheduleController extends Controller
                 'end_time' => $request->end_time,
                 'location' => $request->location,
                 'quota' => $request->quota,
+                'remaining_quota' => $request->quota,
             ]);
 
             return redirect()->route('schedules.index')->with('status', 'schedule-created');

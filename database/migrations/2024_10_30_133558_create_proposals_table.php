@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('subkbk_id')->constrained()->onDelete('cascade');
             $table->string('topic');
-            $table->text('background');
+            $table->text('background')->nullable();
             $table->timestamps();
         });
     }

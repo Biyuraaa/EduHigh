@@ -6,6 +6,7 @@ use App\Models\Schedule;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreScheduleRequest;
 use App\Http\Requests\UpdateScheduleRequest;
+use Hamcrest\Core\IsNot;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -23,13 +24,13 @@ class ScheduleController extends Controller
             $schedules = Schedule::paginate(10);
             return view('dashboard.admin.schedules.index', compact('schedules'));
         } else {
-            $approvedSupervision = Auth::user()->mahasiswa->superVisions->where('status', 'approved')->first();
+            $approvedSupervisions = Auth::user()->mahasiswa->superVisions->where('status', 'approved');
 
-            if ($approvedSupervision) {
-                // Ambil jadwal yang dibuat oleh dosen pembimbing yang disetujui
-                $schedules = Schedule::where('dosen_id', $approvedSupervision->dosen_id)->paginate(10);
+            if ($approvedSupervisions->isNotEmpty()) {
+                $dosenIds = $approvedSupervisions->pluck('dosen_id')->toArray();
+
+                $schedules = Schedule::whereIn('dosen_id', $dosenIds)->paginate(10);
             } else {
-                // Jika belum memiliki dosen pembimbing yang disetujui, jadwal kosong
                 $schedules = collect();
             }
 

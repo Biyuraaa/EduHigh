@@ -54,4 +54,9 @@ class Dosen extends Model
     {
         return $this->hasMany(ResultAssessment::class);
     }
+
+    public function resultSeminarReviews(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ResultSeminarReview::class);
+    }
 }

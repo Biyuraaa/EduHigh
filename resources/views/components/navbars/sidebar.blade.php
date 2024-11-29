@@ -116,8 +116,8 @@
                             </li>
                             <!-- Sub-item Hasil -->
                             <li class="nav-item">
-                                <a class="nav-link text-white {{ $activePage == 'seminar-results' ? ' active bg-gradient-primary' : '' }} "
-                                    href="">
+                                <a class="nav-link text-white {{ $activePage == 'result-seminars' ? ' active bg-gradient-primary' : '' }} "
+                                    href="{{ route('resultSeminars.index') }}">
                                     <div
                                         class="text-white text-center me-2 d-flex align-items-center justify-content-center">
                                         <i class="material-icons opacity-10">check_circle</i>
@@ -158,6 +158,15 @@
                             <i class="material-icons opacity-10">people</i>
                         </div>
                         <span class="nav-link-text ms-1">Pengajuan Seminar Proposal</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ $activePage == 'pengajuan-semhas' ? ' active bg-gradient-primary' : '' }}  "
+                        href="{{ route('resultSeminars.request') }}">
+                        <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="material-icons opacity-10">people</i>
+                        </div>
+                        <span class="nav-link-text ms-1">Pengajuan Seminar Hasil</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -210,6 +219,15 @@
                             <i class="material-icons opacity-10">people</i>
                         </div>
                         <span class="nav-link-text ms-1">Seminar Proposal</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ $activePage == 'seminar-hasil' ? ' active bg-gradient-primary' : '' }}  "
+                        href="{{ route('resultSeminars.index') }}">
+                        <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="material-icons opacity-10">people</i>
+                        </div>
+                        <span class="nav-link-text ms-1">Seminar Hasil</span>
                     </a>
                 </li>
             @endif

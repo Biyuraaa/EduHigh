@@ -19,6 +19,7 @@ class ResultSeminar extends Model
         "date",
         "time",
         "location",
+        "status",
     ];
 
     public function mahasiswa()
@@ -29,5 +30,10 @@ class ResultSeminar extends Model
     public function resultAssessments()
     {
         return $this->hasMany(ResultAssessment::class);
+    }
+
+    public function resultSeminarReviews()
+    {
+        return $this->hasMany(ResultSeminarReview::class);
     }
 }

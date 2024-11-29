@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateResultSeminarRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class UpdateResultSeminarRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::check();
     }
 
     /**
@@ -23,6 +24,10 @@ class UpdateResultSeminarRequest extends FormRequest
     {
         return [
             //
+            "date" => ["required", "date"],
+            "time" => ["required"],
+            "location" => ["required", "string"],
+            "dosen_id" => ["required", "exists:dosens,id"],
         ];
     }
 }

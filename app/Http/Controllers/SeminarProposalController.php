@@ -190,12 +190,12 @@ class SeminarProposalController extends Controller
             return redirect()->route('dashboard')->with('error', 'You are not authorized to access this page');
         } else {
 
-            $seminarProposals = SeminarProposal::whereHas('proposalAssessments', function ($query) {
+            $seminarProposals = SeminarProposal::where('status', 'pending')->whereHas('proposalAssessments', function ($query) {
                 $query->where('dosen_id', Auth::user()->dosen->id);
             })->get();
 
             $seminarProposalReviews = SeminarProposalReview::where('dosen_id', Auth::user()->dosen->id)->get();
-            return view("dashboard.dosen.seminarproposals.index", compact("seminarProposals", "seminarProposalReviews"));
+            return view("dashboard.dosen.seminarproposals.request", compact("seminarProposals", "seminarProposalReviews"));
         }
     }
     /**

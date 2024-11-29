@@ -24,10 +24,13 @@
                                         Lihat dan kelola status seminar proposal Anda
                                     </p>
                                 </div>
-                                <a href="{{ route('seminarproposals.exportBeritaAcara', $seminarProposal) }}"
-                                    class="btn btn-light">
-                                    <i class="fas fa-file-pdf me-1"></i> Export PDF Berita Acara
-                                </a>
+                                @if ($seminarProposal && $seminarProposal->status === 'approved')
+                                    <a href="{{ route('seminarproposals.exportBeritaAcara', $seminarProposal) }}"
+                                        class="btn btn-light">
+                                        <i class="fas fa-file-pdf me-1"></i> Export PDF Berita Acara
+                                    </a>
+                                @endif
+
                             </div>
                         </div>
                         <div class="card-body p-4">

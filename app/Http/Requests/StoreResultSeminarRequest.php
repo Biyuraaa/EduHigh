@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreResultSeminarRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class StoreResultSeminarRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::check();
     }
 
     /**
@@ -23,6 +24,7 @@ class StoreResultSeminarRequest extends FormRequest
     {
         return [
             //
+            "mahasiswa_id" => ["required", "exists:mahasiswas,id"],
         ];
     }
 }

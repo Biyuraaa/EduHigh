@@ -49,14 +49,14 @@
                                                         <div class="d-flex align-items-center">
                                                             <div
                                                                 class="avatar avatar-sm bg-gradient-primary rounded-circle me-3">
-                                                                {{ strtoupper(substr($logbook->appointment->mahasiswa->user->name, 0, 1)) }}
+                                                                {{ strtoupper(substr($logbook->superVision->mahasiswa->user->name, 0, 1)) }}
                                                             </div>
                                                             <div>
                                                                 <h6 class="mb-0">
-                                                                    {{ $logbook->appointment->mahasiswa->user->name }}
+                                                                    {{ $logbook->superVision->mahasiswa->user->name }}
                                                                 </h6>
                                                                 <span
-                                                                    class="text-muted text-sm">{{ $logbook->appointment->mahasiswa->nim }}</span>
+                                                                    class="text-muted text-sm">{{ $logbook->superVision->mahasiswa->nim }}</span>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -131,8 +131,8 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <h6 class="text-uppercase text-muted mb-2">Informasi Mahasiswa</h6>
-                                        <h5 class="mb-1">{{ $logbook->appointment->mahasiswa->user->name }}</h5>
-                                        <p class="mb-0 text-muted">{{ $logbook->appointment->mahasiswa->nim }}</p>
+                                        <h5 class="mb-1">{{ $logbook->superVision->mahasiswa->user->name }}</h5>
+                                        <p class="mb-0 text-muted">{{ $logbook->superVision->mahasiswa->nim }}</p>
                                     </div>
                                     <div class="col-md-6 text-md-end">
                                         <h6 class="text-uppercase text-muted mb-2">Tanggal Konsultasi</h6>

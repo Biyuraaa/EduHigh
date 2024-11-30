@@ -292,6 +292,23 @@
                                         </button>
                                     </div>
                                 </div>
+
+                                <!-- Section VIII: Metode Penelition -->
+                                <div class="card mb-4">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-flask me-2 text-primary"></i>VIII. Metode Penelitian
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label for="methodology" class="form-label">Metode Penelitian</label>
+                                            <textarea name="methodology" id="methodology" class="form-control" rows="4" required>{{ old('methodology', $proposal->methodology) }}</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+
                                 <!-- Submit Button -->
                                 <div class="d-flex justify-content-end">
                                     <button type="submit" class="btn btn-success">

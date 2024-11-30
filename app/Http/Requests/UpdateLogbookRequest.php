@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateLogbookRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class UpdateLogbookRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::user()->role == 'mahasiswa';
     }
 
     /**
@@ -22,7 +23,9 @@ class UpdateLogbookRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            "dosen_id" => ["required", "exists:dosens,id"],
+            "date" => ["required", "date"],
+            "notes" => ["required", "string"],
         ];
     }
 }

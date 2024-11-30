@@ -35,6 +35,7 @@ class StoreProposalRequest extends FormRequest
             'previousResearches.*.results' => 'nullable|string|max:255',
             'researchQuestions.*' => 'nullable|string|max:255',
             'outputs.*' => 'nullable|string|max:255',
+            'methodology' => 'nullable|string|max:1000',
         ];
     }
 }

@@ -6,7 +6,7 @@ use App\Models\ProposalCriteria;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class ProposoalCriteriaSeeder extends Seeder
+class ProposalCriteriaSeeder extends Seeder
 {
     /**
      * Run the database seeds.

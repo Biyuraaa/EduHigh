@@ -57,10 +57,10 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label class="form-control-label">Consultation Date</label>
-                                                <input type="date" name="consultation_date"
-                                                    class="form-control @error('consultation_date') is-invalid @enderror"
-                                                    required value="{{ old('consultation_date') }}">
-                                                @error('consultation_date')
+                                                <input type="date" name="date"
+                                                    class="form-control @error('date') is-invalid @enderror" required
+                                                    value="{{ old('date') }}">
+                                                @error('date')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
@@ -70,9 +70,9 @@
                                         <div class="col-12">
                                             <div class="form-group">
                                                 <label class="form-control-label">Consultation Notes</label>
-                                                <textarea name="consultation_notes" rows="4"
-                                                    class="form-control @error('consultation_notes') is-invalid @enderror" placeholder="Enter consultation notes...">{{ old('consultation_notes') }}</textarea>
-                                                @error('consultation_notes')
+                                                <textarea name="notes" rows="4" class="form-control @error('notes') is-invalid @enderror"
+                                                    placeholder="Enter consultation notes...">{{ old('notes') }}</textarea>
+                                                @error('notes')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>

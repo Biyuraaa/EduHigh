@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('subkbk_id')->constrained()->onDelete('cascade');
             $table->string('topic');
             $table->text('background')->nullable();
+            $table->text('methodology')->nullable();
             $table->timestamps();
         });
     }

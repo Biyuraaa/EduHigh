@@ -56,6 +56,7 @@ class ProposalController extends Controller
                 'background' => $validatedData['background'],
                 'subkbk_id' => $validatedData['subkbk_id'],
                 'user_id' => Auth::user()->id,
+                'methodology' => $validatedData['methodology'],
             ]);
 
             if (!empty($validatedData['titles'])) {
@@ -138,6 +139,7 @@ class ProposalController extends Controller
                 'topic' => $request->topic,
                 'background' => $request->background,
                 'subkbk_id' => $request->subkbk_id,
+                'methodology' => $request->methodology,
             ]);
 
 

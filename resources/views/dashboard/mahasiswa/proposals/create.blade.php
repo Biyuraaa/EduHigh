@@ -225,10 +225,25 @@
                                     </div>
                                 </div>
 
-                                <!-- Submit Button -->
-                                <div class="d-flex justify-content-center mt-4">
-                                    <button type="submit" class="btn btn-success">Submit Proposal</button>
-                                </div>
+                                <div class="card mb-4">
+                                    <div
+                                        class="card-header bg-light d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-book me-2 text-primary"></i>VIII. Metodologi Penelitian
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3 input-group input-group-dynamic">
+                                            <textarea name="methodology" class="form-control" placeholder="Permasalahan yang Diangkat" rows="5"
+                                                spellcheck="false"></textarea>
+                                        </div>
+
+                                    </div </div>
+
+                                    <!-- Submit Button -->
+                                    <div class="d-flex justify-content-center mt-4">
+                                        <button type="submit" class="btn btn-success">Submit Proposal</button>
+                                    </div>
                             </form>
                         </div>
                     </div>

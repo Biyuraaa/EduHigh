@@ -24,7 +24,8 @@ class StoreLogbookRequest extends FormRequest
     {
         return [
             //
-            "appointment_id" => ["required", "exists:appointments,id"],
+            "dosen_id" => ["required", "exists:dosens,id"],
+            "date" => ["required", "date"],
             "notes" => ["required", "string"],
         ];
     }

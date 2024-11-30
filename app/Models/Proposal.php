@@ -17,7 +17,7 @@ class Proposal extends Model
         'background',
         'user_id',
         'subkbk_id',
-
+        'methodology',
     ];
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo

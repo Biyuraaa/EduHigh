@@ -6,6 +6,7 @@ use App\Models\Logbook;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreLogbookRequest;
 use App\Http\Requests\UpdateLogbookRequest;
+use App\Models\SuperVision;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -21,14 +22,14 @@ class LogbookController extends Controller
         // Periksa peran user yang login
         if (Auth::user()->role == "dosen") {
             // Untuk dosen: Ambil logbook mahasiswa yang dia supervisi dengan status "pending"
-            $logbooks = Logbook::whereHas('appointment.mahasiswa.supervisions', function ($query) {
+            $logbooks = Logbook::whereHas('superVision', function ($query) {
                 $query->where('dosen_id', Auth::user()->dosen->id); // Ambil logbook berdasarkan dosen yang login
             })->where('status', 'pending')->paginate(10);
 
             // Tampilkan ke halaman dosen
             return view("dashboard.dosen.logbooks.index", compact("logbooks"));
         } else if (Auth::user()->role == "mahasiswa") {
-            $logbooks = Logbook::whereHas('appointment', function ($query) {
+            $logbooks = Logbook::whereHas('superVision', function ($query) {
                 $query->where('mahasiswa_id', Auth::user()->mahasiswa->id); // Ambil logbook berdasarkan mahasiswa yang login
             })->paginate(10);
 
@@ -61,15 +62,20 @@ class LogbookController extends Controller
         $request->validated();
 
         try {
+            $superVision = SuperVision::where('dosen_id', $request->dosen_id)
+                ->where('mahasiswa_id', Auth::user()->mahasiswa->id)
+                ->first();
+
             Logbook::create([
-                "appointment_id" => $request->appointment_id,
+                "super_vision_id" => $superVision->id,
                 "notes" => $request->notes,
                 "status" => "pending",
+                "date" => $request->date,
             ]);
-            return redirect()->route("appointments.index")->with("success", "Logbook created successfully");
+            return redirect()->route("logbooks.index")->with("success", "Logbook created successfully");
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return redirect()->route("appointments.index")->with("error", "Logbook created successfully");
+            return redirect()->route("logbooks.create")->with("error", "Logbook created successfully");
         }
     }
 
@@ -79,6 +85,7 @@ class LogbookController extends Controller
     public function show(Logbook $logbook)
     {
         //
+        return view("dashboard.mahasiswa.logbooks.show", compact("logbook"));
     }
 
     /**
@@ -87,6 +94,11 @@ class LogbookController extends Controller
     public function edit(Logbook $logbook)
     {
         //
+        if (Auth::user()->role == "admin") {
+            return view("dashboard.dosen.logbooks.create");
+        } else if (Auth::user()->role == "mahasiswa") {
+            return view("dashboard.mahasiswa.logbooks.edit", compact("logbook"));
+        }
     }
 
     /**
@@ -95,6 +107,24 @@ class LogbookController extends Controller
     public function update(UpdateLogbookRequest $request, Logbook $logbook)
     {
         //
+        if ($logbook->status == "approved") {
+            return redirect()->route("logbooks.index")->with("error", "Logbook has been approved");
+        }
+
+        $request->validated();
+
+        try {
+            $logbook->update([
+                "dosen_id" => $request->dosen_id,
+                "notes" => $request->notes,
+                "date" => $request->date,
+                "status" => "pending",
+            ]);
+            return redirect()->route("logbooks.index")->with("success", "Logbook updated successfully");
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return redirect()->route("logbooks.edit", $logbook->id)->with("error", "Logbook updated failed");
+        }
     }
 
     /**
@@ -116,51 +146,11 @@ class LogbookController extends Controller
 
         return redirect()->route('logbooks.index')->with('success', 'Logbook status berhasil diperbarui.');
     }
-    public function filter(Request $request)
-    {
-        $query = Logbook::query();
-
-        if ($request->search) {
-            $query->whereHas('dosen', function ($q) use ($request) {
-                $q->where('name', 'like', "%{$request->search}%");
-            })
-                ->orWhereHas('mahasiswa', function ($q) use ($request) {
-                    $q->where('name', 'like', "%{$request->search}%");
-                })
-                ->orWhere('consultaion_notes', 'like', "%{$request->search}%");
-        }
-
-        if ($request->status) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->date) {
-            $query->whereDate('consultation_date', $request->date);
-        }
-
-        $logbooks = $query->with(['dosen', 'mahasiswa'])->latest()->get();
-
-        return view('dashboard.partials.logbooks-table', compact('logbooks'));
-    }
-
-    public function viewPdf()
-    {
-        // Mendapatkan data mahasiswa yang sedang login
-        $mahasiswa = Auth::user()->mahasiswa;
-
-        $logbooks = Logbook::whereHas('appointment', function ($query) use ($mahasiswa) {
-            $query->where('mahasiswa_id', $mahasiswa->id)
-                ->where('status', 'approved');
-        })->where('status', 'confirmed')
-            ->get();
-
-        return view('dashboard.mahasiswa.logbooks.export', compact('logbooks', 'mahasiswa'));
-    }
 
     public function export()
     {
         $mahasiswa = Auth::user()->mahasiswa;
-        $logbooks = Logbook::whereHas('appointment', function ($query) use ($mahasiswa) {
+        $logbooks = Logbook::whereHas('superVision', function ($query) use ($mahasiswa) {
             $query->where('mahasiswa_id', $mahasiswa->id)
                 ->where('status', 'approved');
         })->where('status', 'confirmed')

@@ -17,16 +17,24 @@
                                     <p class="text-white text-sm mb-0 opacity-8">
                                         Riwayat konsultasi yang telah disetujui
                                     </p>
+                                    <a href="{{ route('logbooks.create') }}"
+                                        class="btn btn-light hover:shadow-lg transition-all duration-300 mt-3">
+                                        <i class="fas fa-plus me-2"></i>
+                                        <span>Tambah Logbook</span>
+                                    </a>
+
                                 </div>
                                 <div>
-                                    <form action="{{ route('logbooks.export') }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <button type="submit"
-                                            class="btn btn-light hover:shadow-lg transition-all duration-300">
-                                            <i class="fas fa-print me-2"></i>
-                                            <span>Cetak Logbook</span>
-                                        </button>
-                                    </form>
+                                    @if (Auth::user()->mahasiswa->superVisions->first()->status == 'approved')
+                                        <form action="{{ route('logbooks.export') }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit"
+                                                class="btn btn-light hover:shadow-lg transition-all duration-300">
+                                                <i class="fas fa-print me-2"></i>
+                                                <span>Cetak Logbook</span>
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -43,7 +51,39 @@
                             </div>
 
                             <div class="table-responsive">
-                                @if ($logbooks->isEmpty())
+                                @if (!Auth::user()->proposal)
+                                    <div class="text-center py-5">
+                                        <div class="empty-state">
+                                            <div class="empty-state-icon mb-4">
+                                                <i class="fas fa-file-alt fa-4x text-muted"></i>
+                                            </div>
+                                            <h5 class="text-muted">Belum Ada Proposal</h5>
+                                            <p class="text-sm text-muted mb-0">
+                                                Anda belum memiliki proposal. Silakan buat proposal terlebih dahulu.
+                                            </p>
+                                            <a href="{{ route('proposals.create') }}" class="btn btn-primary mt-3">
+                                                <i class="fas fa-plus me-2"></i>Buat Proposal
+                                            </a>
+                                        </div>
+                                    </div>
+                                @elseif (Auth::user()->mahasiswa->superVisions->isEmpty() ||
+                                        Auth::user()->mahasiswa->superVisions->first()->status != 'approved')
+                                    <div class="text-center py-5">
+                                        <div class="empty-state">
+                                            <div class="empty-state-icon mb-4">
+                                                <i class="fas fa-user-plus fa-4x text-muted"></i>
+                                            </div>
+                                            <h5 class="text-muted">Belum Ada Dosen Pembimbing</h5>
+                                            <p class="text-sm text-muted mb-0">
+                                                Anda belum memiliki dosen pembimbing. Silakan ajukan permintaan
+                                                pembimbing.
+                                            </p>
+                                            <a href="{{ route('supervisions.index') }}" class="btn btn-primary mt-3">
+                                                <i class="fas fa-user-plus me-2"></i>Ajukan Dosen Pembimbing
+                                            </a>
+                                        </div>
+                                    </div>
+                                @elseif ($logbooks->isEmpty())
                                     <div class="text-center py-5">
                                         <div class="empty-state">
                                             <div class="empty-state-icon mb-4">
@@ -56,80 +96,114 @@
                                         </div>
                                     </div>
                                 @else
-                                    <table class="table align-items-center mb-0">
-                                        <thead class="bg-light">
-                                            <tr>
-                                                <th
-                                                    class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center ps-2">
-                                                    No.</th>
-                                                <th
-                                                    class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">
-                                                    Tanggal</th>
-                                                <th
-                                                    class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center ps-2">
-                                                    Dosen</th>
-                                                <th
-                                                    class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center ps-2">
-                                                    Catatan</th>
-                                                <th
-                                                    class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center ps-2">
-                                                    Komentar</th>
-                                                <th
-                                                    class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">
-                                                    Status</th>
-                                                <th
-                                                    class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center pe-2">
-                                                    Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($logbooks as $index => $logbook)
-                                                <tr>
-                                                    <td class="text-center text-sm">{{ $loop->iteration }}</td>
-                                                    <td>
-                                                        <div class="d-flex align-items-center">
-                                                            <div
-                                                                class="icon-shape icon-sm me-2 bg-gradient-primary shadow text-center">
-                                                                <i
-                                                                    class="fas fa-calendar-day text-white opacity-10"></i>
-                                                            </div>
-                                                            <span
-                                                                class="text-sm">{{ \Carbon\Carbon::parse($logbook->appointment->schedule->schedule_date)->format('d M Y') }}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="d-flex align-items-center">
-                                                            <div
-                                                                class="avatar avatar-sm bg-gradient-secondary rounded-circle me-2">
-                                                                {{ strtoupper(substr($logbook->appointment->schedule->dosen->user->name, 0, 1)) }}
-                                                            </div>
-                                                            <span
-                                                                class="text-sm">{{ $logbook->appointment->schedule->dosen->user->name }}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-wrap" style="max-width: 200px;">
-                                                        <p class="text-sm mb-0">{{ Str::limit($logbook->notes, 50) }}
-                                                        </p>
-                                                    </td>
-                                                    <td class="text-wrap" style="max-width: 200px;">
-                                                        <p class="text-sm mb-0">
-                                                            {{ Str::limit($logbook->comments, 50) ?? 'Tidak ada komentar ' }}
-                                                        </p>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <span class="badge bg-gradient-success">Disetujui</span>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <button class="btn btn-sm bg-gradient-info"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#logbookModal-{{ $logbook->id }}">
-                                                            <i class="fas fa-eye me-1"></i>Detail
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
+                                    <div class="card">
+                                        <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
+                                            <h3 class="card-title font-weight-bolder text-primary text-gradient">Logbook
+                                                Entries</h3>
+                                        </div>
+                                        <div class="card-body pt-2">
+                                            <div class="table-responsive">
+                                                <table class="table align-items-center mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th
+                                                                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">
+                                                                No.</th>
+                                                            <th
+                                                                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                                                Tanggal</th>
+                                                            <th
+                                                                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                                                Dosen</th>
+                                                            <th
+                                                                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                                                Catatan</th>
+                                                            <th
+                                                                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">
+                                                                Status</th>
+                                                            <th
+                                                                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">
+                                                                Aksi</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($logbooks as $index => $logbook)
+                                                            <tr>
+                                                                <td class="text-center">
+                                                                    <p class="text-sm font-weight-bold mb-0">
+                                                                        {{ $loop->iteration }}</p>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="d-flex px-2 py-1">
+                                                                        <div
+                                                                            class="d-flex flex-column justify-content-center">
+                                                                            <h6 class="mb-0 text-sm">
+                                                                                {{ \Carbon\Carbon::parse($logbook->date)->format('d M Y') }}
+                                                                            </h6>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="d-flex px-2 py-1">
+                                                                        <div
+                                                                            class="avatar avatar-sm me-3 bg-gradient-secondary rounded-circle">
+                                                                            {{ strtoupper(substr($logbook->superVision->dosen->user->name, 0, 1)) }}
+                                                                        </div>
+                                                                        <div
+                                                                            class="d-flex flex-column justify-content-center">
+                                                                            <h6 class="mb-0 text-sm">
+                                                                                {{ $logbook->superVision->dosen->user->name }}
+                                                                            </h6>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <p class="text-sm font-weight-bold mb-0">
+                                                                        {{ Str::limit($logbook->notes, 50) }}</p>
+                                                                </td>
+                                                                <td class="align-middle text-center text-sm">
+                                                                    @switch($logbook->status)
+                                                                        @case('confirmed')
+                                                                            <span
+                                                                                class="badge badge-sm bg-gradient-success">Disetujui</span>
+                                                                        @break
+
+                                                                        @case('pending')
+                                                                            <span
+                                                                                class="badge badge-sm bg-gradient-warning">Pending</span>
+                                                                        @break
+
+                                                                        @case('rejected')
+                                                                            <span
+                                                                                class="badge badge-sm bg-gradient-danger">Ditolak</span>
+                                                                        @break
+
+                                                                        @default
+                                                                            <span
+                                                                                class="badge badge-sm bg-gradient-secondary">Tidak
+                                                                                Diketahui</span>
+                                                                    @endswitch
+                                                                </td>
+                                                                <td class="align-middle text-center">
+                                                                    <div class="btn-group" role="group">
+                                                                        <a href="{{ route('logbooks.show', $logbook) }}"
+                                                                            class="btn btn-sm bg-gradient-info me-2">
+                                                                            <i class="fas fa-eye me-1"></i> Show
+                                                                        </a>
+                                                                        <a href="{{ route('logbooks.edit', $logbook) }}"
+                                                                            class="btn btn-sm bg-gradient-warning {{ $logbook->status == 'confirmed' ? 'disabled' : '' }}"
+                                                                            {{ $logbook->status == 'approved' ? 'aria-disabled=true' : '' }}>
+                                                                            <i class="fas fa-edit me-1"></i> Edit
+                                                                        </a>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <!-- Pagination -->
                                     <div class="border-top px-4 py-3">
@@ -149,55 +223,8 @@
             </div>
         </div>
 
-        <!-- Improved Modal Design -->
-        @foreach ($logbooks as $logbook)
-            <div class="modal fade" id="logbookModal-{{ $logbook->id }}" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header bg-gradient-primary">
-                            <h5 class="modal-title text-white">
-                                <i class="fas fa-book-reader me-2"></i>Detail Logbook
-                            </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body p-4">
-                            <div class="mb-4 pb-3 border-bottom">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="avatar avatar-lg bg-gradient-primary rounded-circle me-3">
-                                        {{ strtoupper(substr($logbook->appointment->schedule->dosen->user->name, 0, 1)) }}
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-1">{{ $logbook->appointment->schedule->dosen->user->name }}
-                                        </h6>
-                                        <p class="text-sm text-muted mb-0">
-                                            <i class="fas fa-calendar-alt me-1"></i>
-                                            {{ \Carbon\Carbon::parse($logbook->appointment->schedule->schedule_date)->format('l, d F Y') }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mb-4">
-                                <h6 class="text-uppercase text-muted mb-3">Catatan Konsultasi</h6>
-                                <div class="bg-light rounded p-3">
-                                    {{ $logbook->notes }}
-                                </div>
-                            </div>
-
-                            <div>
-                                <h6 class="text-uppercase text-muted mb-3">Komentar Dosen</h6>
-                                <div class="bg-light rounded p-3">
-                                    {{ $logbook->comments ?? 'Tidak ada komentar' }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endforeach
     </main>
 </x-layout>
-
 
 @push('styles')
     <style>

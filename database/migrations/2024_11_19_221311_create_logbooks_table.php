@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('logbooks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('appointment_id')->constrained('appointments')->onDelete('cascade'); // Hubungkan dengan pengajuan
+            $table->foreignId('super_vision_id')->constrained('super_visions')->onDelete('cascade'); // Hubungkan dengan pengajuan
             $table->text('notes')->nullable();
+            $table->date('date')->nullable();
             $table->text('comments')->nullable(); // Komentar dosen
             $table->enum('status', ['pending', 'confirmed', 'rejected'])->default('pending'); // Status verifikasi
             $table->timestamp('verified_at')->nullable(); // Waktu verifikasi

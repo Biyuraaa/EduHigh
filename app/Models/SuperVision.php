@@ -29,4 +29,9 @@ class SuperVision extends Model
     {
         return $this->belongsTo(Mahasiswa::class);
     }
+
+    public function logBooks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(LogBook::class);
+    }
 }

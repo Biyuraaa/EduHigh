@@ -35,6 +35,7 @@ class UpdateProposalRequest extends FormRequest
             'previousResearch.*.results' => 'nullable|string|max:255',
             'researchQuestions.*' => 'nullable|string|max:255',
             'researchOutputs.*' => 'nullable|string|max:255',
+            'methodology' => 'nullable|string|max:1000',
         ];
     }
 }

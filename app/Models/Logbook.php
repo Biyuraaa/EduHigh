@@ -11,14 +11,15 @@ class Logbook extends Model
     protected $table = "logbooks";
 
     protected $fillable = [
-        "appointment_id",
+        "super_vision_id",
         "notes",
+        "date",
         "comment",
         "status",
     ];
 
-    public function appointment()
+    public function superVision()
     {
-        return $this->belongsTo(Appointment::class);
+        return $this->belongsTo(SuperVision::class);
     }
 }

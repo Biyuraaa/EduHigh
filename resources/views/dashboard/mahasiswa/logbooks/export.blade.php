@@ -214,7 +214,7 @@
                 <tr>
                     <td style="text-align: center">{{ $index + 1 }}</td>
                     <td style="text-align: center">
-                        {{ \Carbon\Carbon::parse($logbook->appointment->schedule->schedule_date)->format('d F Y') }}
+                        {{ \Carbon\Carbon::parse($logbook->superVision->date)->format('d F Y') }}
                     </td>
                     <td>{{ $logbook->notes }}</td>
                     <td></td>

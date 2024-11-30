@@ -84,7 +84,7 @@
                     </div>
                 </form>
 
-                <div class="mt-6 text-center">
+                <div class="my-6 text-center">
                     <p class="text-sm text-gray-600">
                         Belum punya akun?
                         <a href="{{ route('register') }}" class="font-semibold text-sky-600 hover:text-sky-500">Daftar di
@@ -92,12 +92,12 @@
                     </p>
                 </div>
             </div>
+            <div class="absolute bottom-4 w-full text-center text-gray-500 text-xs">
+                © {{ date('Y') }} Eduhigh - Sistem Bimbingan Skripsi Digital
+            </div>
         </div>
     </div>
 
-    <div class="absolute bottom-4 w-full text-center text-gray-500 text-xs">
-        © {{ date('Y') }} Eduhigh - Sistem Bimbingan Skripsi Digital
-    </div>
 @endsection
 
 @push('styles')

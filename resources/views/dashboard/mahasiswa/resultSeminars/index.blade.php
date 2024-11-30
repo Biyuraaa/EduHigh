@@ -28,7 +28,7 @@
                                         Auth::user()->mahasiswa->seminarProposal?->result === 'success';
                                     $resultSeminar = Auth::user()->mahasiswa->resultSeminar;
                                 @endphp
-                                @if ($resultSeminar->status === 'approved')
+                                @if ($resultSeminar->final_score && $resultSeminar->letter_grade)
                                     <a href="{{ route('resultSeminars.exportBeritaAcara', $resultSeminar) }}"
                                         class="btn btn-light">
                                         <i class="fas fa-file-pdf me-1"></i> Export PDF Berita Acara
@@ -143,6 +143,34 @@
                                                             <p class="text-muted mb-1">Lokasi</p>
                                                             <p class="fw-bold">
                                                                 {{ $resultSeminar->location ?? 'Belum ditentukan' }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="card mt-4">
+                                                <div class="card-body">
+                                                    <h5 class="card-title mb-4">Hasil Seminar</h5>
+                                                    <div class="row">
+                                                        <div class="col-md-3">
+                                                            <p class="text-muted mb-1">Nilai Materi</p>
+                                                            <p class="fw-bold">
+                                                                {{ $resultSeminar->material_score ?? 'Belum dinilai' }}</p>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <p class="text-muted mb-1">Nilai Presentasi</p>
+                                                            <p class="fw-bold">
+                                                                {{ $resultSeminar->presentation_score ?? 'Belum dinilai' }}</p>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <p class="text-muted mb-1">Nilai Akhir</p>
+                                                            <p class="fw-bold">
+                                                                {{ $resultSeminar->final_score ?? 'Belum dinilai' }}</p>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <p class="text-muted mb-1">Nilai Huruf</p>
+                                                            <p class="fw-bold">
+                                                                {{ $resultSeminar->letter_grade ?? 'Belum dinilai' }}</p>
                                                         </div>
                                                     </div>
                                                 </div>

@@ -12,9 +12,12 @@ use App\Models\ResultAssessment;
 use App\Models\ResultAssessmentCriteria;
 use App\Models\ResultCriteria;
 use App\Models\ResultSeminarReview;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class ResultSeminarController extends Controller
 {
@@ -44,119 +47,119 @@ class ResultSeminarController extends Controller
     {
         $resultSeminar = ResultSeminar::findOrFail($id);
 
-        $materiAssessment = $resultSeminar->resultAssessments()
+        $materialAssessment = $resultSeminar->resultAssessments()
             ->where('dosen_id', Auth::user()->dosen->id)
             ->where('category', 'material')
             ->first();
 
-        $presentasiAssessment = $resultSeminar->resultAssessments()
+        $presentationAssessment = $resultSeminar->resultAssessments()
             ->where('dosen_id', Auth::user()->dosen->id)
             ->where('category', 'presentation')
             ->first();
 
-        $criterias = ResultCriteria::all()->groupBy('category');
-
-        $materiAssessmentCriterias = $materiAssessment ? $materiAssessment->resultAssessmentCriterias()
-            ->pluck('score', 'result_criteria_id')
-            ->toArray() : [];
-
-        $presentasiAssessmentCriterias = $presentasiAssessment ? $presentasiAssessment->resultAssessmentCriterias()
-            ->pluck('score', 'result_criteria_id')
-            ->toArray() : [];
-
-        // Kirim data ke view
         return view('dashboard.dosen.resultSeminars.evaluation', compact(
             'resultSeminar',
-            'criterias',
-            'materiAssessment',
-            'materiAssessmentCriterias',
-            'presentasiAssessmentCriterias'
+            'materialAssessment',
+            'presentationAssessment',
         ));
     }
 
     public function updateEvaluation(Request $request, ResultSeminar $resultSeminar)
     {
+        DB::beginTransaction();
+
         try {
+            // Validate request
             $request->validate([
-                'scores.*' => 'required|numeric|min:0|max:100',
-                'assessment_id' => 'required|exists:proposal_assessments,id'
+                'material_result_assessment_id' => 'required|exists:result_assessments,id',
+                'presentation_result_assessment_id' => 'required|exists:result_assessments,id',
+                'materials' => 'required|array',
+                'presentations' => 'required|array',
+                'materials.*' => 'required|numeric|between:0,100',
+                'presentations.*' => 'required|numeric|between:0,100',
             ]);
 
-            $assessment = $seminarproposal->proposalAssessments()
-                ->where('dosen_id', Auth::user()->dosen->id)
-                ->firstOrFail();
+            // Retrieve assessments
+            $materialAssessment = ResultAssessment::findOrFail($request->material_result_assessment_id);
+            $presentationAssessment = ResultAssessment::findOrFail($request->presentation_result_assessment_id);
 
-            // Begin transaction
-            DB::beginTransaction();
-
-            $totalCalculatedScore = 0;
-            $totalWeight = 0;
-
-            // Get all criteria
-            $criterias = ProposalCriteria::all();
-
-            // Process each score
-            foreach ($request->scores as $criteriaId => $score) {
-                $criteria = $criterias->find($criteriaId);
-
-                if (!$criteria) {
-                    throw new \Exception("Invalid criteria ID: {$criteriaId}");
-                }
-
-                $calculatedScore = $score * ($criteria->weight / 100);
-                $totalWeight += $criteria->weight;
-
-                // Update or create assessment criteria
-                ProposalAssessmentCriteria::updateOrCreate(
-                    [
-                        'proposal_assessment_id' => $assessment->id,
-                        'proposal_criteria_id' => $criteriaId
-                    ],
-                    [
-                        'score' => $score,
-                        'calculated_score' => $calculatedScore
-                    ]
-                );
-
-                $totalCalculatedScore += $calculatedScore;
+            if (
+                $materialAssessment->is_submitted || $presentationAssessment->is_submitted
+            ) {
+                return back()->with('error', 'You have already submitted your evaluation.');
             }
 
-            // Validate total weight
-            if (abs($totalWeight - 100) > 0.01) {
-                throw new \Exception("Total criteria weight must be 100%, current: {$totalWeight}%");
+            // Initialize scores
+            $materialScore = 0;
+            $presentationScore = 0;
+
+            // Update material assessment criteria
+            foreach ($request->materials as $id => $material) {
+                $result = ResultAssessmentCriteria::findOrFail($id);
+                $result->score = $material;
+                $result->calculated_score = $material * $result->resultCriteria->weight / 100;
+                $result->save();
+                $materialScore += $result->calculated_score;
             }
 
-            // Update final score
-            $assessment->update(['score' => $totalCalculatedScore]);
+            // Update material assessment
+            $materialAssessment->score = $materialScore;
+            $materialAssessment->calculated_score = $materialScore * $materialAssessment->weight / 100;
+            $materialAssessment->is_submitted = true;
+            $materialAssessment->save();
 
-            // Update seminar proposal grade if all assessments are complete
-            $allAssessmentsComplete = $seminarproposal->proposalAssessments()
-                ->whereNull('score')
-                ->doesntExist();
-
-            if ($allAssessmentsComplete) {
-                // Calculate the average score
-                $averageScore = $seminarproposal->proposalAssessments()->avg('score');
-
-                // Update numeric grade
-                $seminarproposal->numeric_grade = round($averageScore, 2);
-
-                // Convert to letter grade
-                $seminarproposal->letter_grade = $this->convertToLetterGrade($averageScore);
-
-                // Save seminar proposal
-                $seminarproposal->save();
+            // Update presentation assessment criteria
+            foreach ($request->presentations as $id => $presentation) {
+                $result = ResultAssessmentCriteria::findOrFail($id);
+                $result->score = $presentation;
+                $result->calculated_score = $presentation * $result->resultCriteria->weight / 100;
+                $result->save();
+                $presentationScore += $result->calculated_score;
             }
+
+            // Update presentation assessment
+            $presentationAssessment->score = $presentationScore;
+            $presentationAssessment->calculated_score = $presentationScore * $presentationAssessment->weight / 100;
+            $presentationAssessment->is_submitted = true;
+            $presentationAssessment->save();
+
+            // Update result seminar scores
+            $materialScore = $resultSeminar->resultAssessments()
+                ->where('category', 'material')
+                ->sum('calculated_score');
+
+            $presentationScore = $resultSeminar->resultAssessments()
+                ->where('category', 'presentation')
+                ->sum('calculated_score');
+
+            $materialWeight = 0.60; // 60%
+            $presentationWeight = 0.40; // 40%
+
+            $finalScore = $materialScore * $materialWeight + $presentationScore * $presentationWeight;
+
+            $letterGrade = match (true) {
+                $finalScore >= 75 => 'A',
+                $finalScore >= 70 => 'AB',
+                $finalScore >= 65 => 'B',
+                $finalScore >= 60 => 'BC',
+                $finalScore >= 55 => 'C',
+                $finalScore >= 40 => 'D',
+                default => 'E',
+            };
+
+            $resultSeminar->material_score = $materialScore;
+            $resultSeminar->presentation_score = $presentationScore;
+            $resultSeminar->final_score = $finalScore;
+            $resultSeminar->letter_grade = $letterGrade;
+            $resultSeminar->save();
 
             DB::commit();
 
-            return redirect()
-                ->route('seminarproposals.index')
-                ->with('success', 'Assessment has been updated successfully!');
+            return redirect()->route('resultSeminars.index')->with('success', 'Assessment updated successfully.');
         } catch (ValidationException $e) {
             DB::rollBack();
             Log::error('Validation Error in updateEvaluation:', [
-                'seminar_id' => $seminarproposal->id,
+                'seminar_id' => $resultSeminar->id,
                 'errors' => $e->errors()
             ]);
             return back()
@@ -165,7 +168,7 @@ class ResultSeminarController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error in updateEvaluation:', [
-                'seminar_id' => $seminarproposal->id,
+                'seminar_id' => $resultSeminar->id,
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -243,6 +246,61 @@ class ResultSeminarController extends Controller
             $resultSeminarReviews = ResultSeminarReview::where('dosen_id', Auth::user()->dosen->id)->get();
             return view("dashboard.dosen.resultSeminars.request", compact("resultSeminars", "resultSeminarReviews"));
         }
+    }
+
+    public function viewBeritaAcara()
+    {
+
+        $resultSeminar = ResultSeminar::find(1);
+
+        $resultSeminar = $resultSeminar->load([
+            'mahasiswa',
+            'resultAssessments.dosen',
+        ]);
+
+        $letterGrade = $this->determineLetterGrade($resultSeminar->final_score);
+
+        // Data yang akan diteruskan ke view
+        $data = [
+            'resultSeminar' => $resultSeminar,
+            'letterGrade' => $letterGrade,
+        ];
+
+        // Render view ke PDF
+        return view('dashboard.mahasiswa.resultSeminars.exportBeritaAcara', compact('resultSeminar', 'letterGrade'));
+    }
+
+    public function exportBeritaAcara(ResultSeminar $resultSeminar)
+    {
+        $resultSeminar = $resultSeminar->load([
+            'mahasiswa',
+            'resultAssessments.dosen',
+        ]);
+
+        $letterGrade = $this->determineLetterGrade($resultSeminar->final_score);
+
+        // Data yang akan diteruskan ke view
+        $data = [
+            'resultSeminar' => $resultSeminar,
+            'letterGrade' => $letterGrade,
+        ];
+
+        // Render view ke PDF
+        $pdf = Pdf::loadView('dashboard.mahasiswa.resultSeminars.exportBeritaAcara', $data);
+
+        // Unduh file PDF
+        return $pdf->download('Berita_Acara_Seminar_Hasil.pdf');
+    }
+
+    private function determineLetterGrade($score)
+    {
+        if ($score >= 75) return 'A';
+        if ($score >= 70) return 'AB';
+        if ($score >= 65) return 'B';
+        if ($score >= 60) return 'BC';
+        if ($score >= 55) return 'C';
+        if ($score >= 40) return 'D';
+        return 'E';
     }
 
     public function resubmission(StoreResultSeminarRequest $request)

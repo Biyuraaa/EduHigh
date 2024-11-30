@@ -94,9 +94,15 @@
                                                         @endif
                                                     </td>
                                                     <td>
+                                                        @php
+                                                            $assessment = $resultSeminar
+                                                                ->resultAssessments()
+                                                                ->where('dosen_id', Auth::user()->dosen->id)
+                                                                ->first();
+                                                        @endphp
                                                         @if ($role == 'pembimbing_1' || $role == 'pembimbing_2' || $role == 'penguji_1' || $role == 'penguji_2')
                                                             <a href="{{ route('resultSeminars.evaluation', $resultSeminar->id) }}"
-                                                                class="btn btn-warning btn-sm"
+                                                                class="btn btn-warning btn-sm {{ $assessment && $assessment->is_submitted ? 'disabled' : '' }}"
                                                                 title="Evaluate Proposal">
                                                                 <i class="fas fa-star me-1"></i> Evaluate
                                                             </a>

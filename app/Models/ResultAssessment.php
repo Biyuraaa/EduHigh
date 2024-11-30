@@ -15,6 +15,7 @@ class ResultAssessment extends Model
         "score",
         "type",
         "category",
+        'is_submitted',
         "weight",
         "calculated_score",
     ];

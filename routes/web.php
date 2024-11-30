@@ -52,6 +52,7 @@ Route::middleware(['auth', 'verified'])->prefix('/dashboard')->group(function ()
     Route::get('/resultSeminars/request', [ResultSeminarController::class, 'request'])->name('resultSeminars.request');
     Route::get('/resultSeminars/{resultSeminar}/evaluation', [resultSeminarController::class, 'evaluation'])->name('resultSeminars.evaluation');
     Route::put('/resultSeminars/{resultSeminar}/updateEvaluation', [ResultSeminarController::class, 'updateEvaluation'])->name('resultSeminars.updateEvaluation');
+    Route::get('/resultSeminars/{resultSeminar}/exportBeritaAcara', [ResultSeminarController::class, 'exportBeritaAcara'])->name('resultSeminars.exportBeritaAcara');
     Route::post('/resultSeminarReview', [ResultSeminarReviewController::class, 'review'])->name('resultSeminarReview');
     Route::resource('resultSeminars', ResultSeminarController::class);
     Route::get('/seminarproposals/{seminarproposal}/evaluation', [SeminarProposalController::class, 'evaluation'])->name('seminarproposal.evaluation');
@@ -78,5 +79,6 @@ Route::middleware(['auth', 'verified'])->prefix('/dashboard')->group(function ()
 
 Route::get('viewPdf', [LogbookController::class, 'viewPdf'])->name('viewPdf');
 Route::get('berita', [SeminarProposalController::class, 'viewBeritaAcara'])->name('viewBeritaAcara');
+Route::get('beritaResult', [ResultSeminarController::class, 'viewBeritaAcara'])->name('viewBeritaAcaraResult');
 
 require __DIR__ . '/auth.php';

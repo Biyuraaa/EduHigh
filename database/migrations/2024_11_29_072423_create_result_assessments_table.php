@@ -19,6 +19,7 @@ return new class extends Migration
             $table->enum('category', ['material', 'presentation'])->default('material');
             $table->decimal('calculated_score', 8, 2)->default(0);
             $table->decimal('weight', 8, 2)->default(0);
+            $table->boolean('is_submitted')->default(value: false);
             $table->decimal('score', 8, 2)->default(0);
             $table->foreign('result_seminar_id')->references('id')->on('result_seminars')->onDelete('cascade');
             $table->foreign('dosen_id')->references('id')->on('dosens')->onDelete('cascade');

@@ -27,13 +27,15 @@ class SeminarProposalController extends Controller
     public function index()
     {
         if (Auth::user()->role == "dosen") {
-            $seminarProposals = SeminarProposal::where('status', 'approved')
-                ->whereHas('proposalAssessments', function ($query) {
-                    $query->where('dosen_id', Auth::user()->dosen->id)
-                        ->whereIn('type', ['pembimbing_1', 'pembimbing_2', 'penguji']);
-                })->get();
+            if (Auth::user()->dosen->role == "kaprodi") {
+                $seminarProposals = SeminarProposal::where('status', 'approved')
+                    ->whereHas('proposalAssessments', function ($query) {
+                        $query->where('dosen_id', Auth::user()->dosen->id)
+                            ->whereIn('type', ['pembimbing_1', 'pembimbing_2', 'penguji']);
+                    })->get();
 
-            return view("dashboard.dosen.seminarproposals.index", compact('seminarProposals'));
+                return view("dashboard.dosen.seminarproposals.index", compact('seminarProposals'));
+            }
         } else if (Auth::user()->role == "admin") {
             $seminarProposals = SeminarProposal::where('status', 'approved')->get();
             return view("dashboard.admin.seminarproposals.index", compact("seminarProposals"));
@@ -41,6 +43,16 @@ class SeminarProposalController extends Controller
             // Assuming this is for mahasiswa
             $seminarProposals = SeminarProposal::where('mahasiswa_id', Auth::user()->mahasiswa->id)->get();
             return view("dashboard.mahasiswa.seminarproposals.index", compact("seminarProposals"));
+        }
+    }
+
+    public function delegate()
+    {
+        if (Auth::user()->dosen->role == "kaprodi") {
+            $seminarProposals = SeminarProposal::where('status', 'approved')->get();
+            return view("dashboard.dosen.seminarproposals.delegate", compact("seminarProposals"));
+        } else {
+            return redirect("dashboard")->with("error", "");
         }
     }
 
@@ -74,16 +86,13 @@ class SeminarProposalController extends Controller
                 ->where('dosen_id', Auth::user()->dosen->id)
                 ->firstOrFail();
 
-            // Begin transaction
             DB::beginTransaction();
 
             $totalCalculatedScore = 0;
             $totalWeight = 0;
 
-            // Get all criteria
             $criterias = ProposalCriteria::all();
 
-            // Process each score
             foreach ($request->scores as $criteriaId => $score) {
                 $criteria = $criterias->find($criteriaId);
 
@@ -94,7 +103,6 @@ class SeminarProposalController extends Controller
                 $calculatedScore = $score * ($criteria->weight / 100);
                 $totalWeight += $criteria->weight;
 
-                // Update or create assessment criteria
                 ProposalAssessmentCriteria::updateOrCreate(
                     [
                         'proposal_assessment_id' => $assessment->id,
@@ -109,30 +117,20 @@ class SeminarProposalController extends Controller
                 $totalCalculatedScore += $calculatedScore;
             }
 
-            // Validate total weight
             if (abs($totalWeight - 100) > 0.01) {
                 throw new \Exception("Total criteria weight must be 100%, current: {$totalWeight}%");
             }
 
-            // Update final score
             $assessment->update(['score' => $totalCalculatedScore]);
 
-            // Update seminar proposal grade if all assessments are complete
             $allAssessmentsComplete = $seminarproposal->proposalAssessments()
                 ->whereNull('score')
                 ->doesntExist();
 
             if ($allAssessmentsComplete) {
-                // Calculate the average score
                 $averageScore = $seminarproposal->proposalAssessments()->avg('score');
-
-                // Update numeric grade
                 $seminarproposal->numeric_grade = round($averageScore, 2);
-
-                // Convert to letter grade
                 $seminarproposal->letter_grade = $this->convertToLetterGrade($averageScore);
-
-                // Save seminar proposal
                 $seminarproposal->save();
             }
 
@@ -253,6 +251,33 @@ class SeminarProposalController extends Controller
         }
     }
 
+    public function getAvailableDosens(SeminarProposal $seminarproposal)
+    {
+        $usedDosenIds = $seminarproposal->proposalAssessments()
+            ->whereIn('type', ['pembimbing_1', 'pembimbing_2'])
+            ->pluck('dosen_id')
+            ->toArray();
+
+        $availableDosens = Dosen::whereNotIn('id', $usedDosenIds)
+            ->with('user:id,name')
+            ->get()
+            ->map(function ($dosen) {
+                return [
+                    'id' => $dosen->id,
+                    'name' => $dosen->user->name
+                ];
+            });
+
+        $pengujiAssessment = $seminarproposal->proposalAssessments()
+            ->where('type', 'penguji')
+            ->first();
+
+        return response()->json([
+            'dosens' => $availableDosens,
+            'selectedDosenId' => $pengujiAssessment ? $pengujiAssessment->dosen_id : null
+        ]);
+    }
+
     public function resubmission(StoreSeminarProposalRequest $request)
     {
         $request->validate([
@@ -302,25 +327,8 @@ class SeminarProposalController extends Controller
 
     public function edit(SeminarProposal $seminarproposal)
     {
-        $usedDosenIds = $seminarproposal->proposalAssessments()
-            ->whereIn('type', ['pembimbing_1', 'pembimbing_2'])
-            ->pluck('dosen_id')
-            ->toArray();
 
-        $availableDosens = Dosen::whereNotIn('id', $usedDosenIds)
-            ->with('user:id,name')
-            ->get()
-            ->map(function ($dosen) {
-                return [
-                    'id' => $dosen->id,
-                    'name' => $dosen->user->name
-                ];
-            });
-
-        $pengujiAssessment = $seminarproposal->proposalAssessments()->where('type', 'penguji')->first();
-        $selectedDosenId = $pengujiAssessment ? $pengujiAssessment->dosen_id : null;
-
-        return view('dashboard.admin.seminarproposals.edit', compact('seminarproposal', 'availableDosens', 'selectedDosenId'));
+        return view('dashboard.admin.seminarproposals.edit', compact('seminarproposal'));
     }
 
     /**
@@ -338,29 +346,37 @@ class SeminarProposalController extends Controller
                 "location" => $request->location,
             ]);
 
-            $existingAssessment = $seminarproposal->proposalassessments()->where('type', 'penguji')->first();
+            // Redirect kembali ke halaman daftar proposal seminar dengan pesan sukses
+            return redirect()->route('seminarproposals.index')->with('success', 'Proposal Seminar berhasil diperbarui.');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return redirect()->route('seminarproposals.edit', $seminarproposal)->with('error', "Terjadi kesalahan. Silakan coba lagi.");
+        }
+    }
+
+
+    public function assignPenguji(Request $request, SeminarProposal $seminarproposal)
+    {
+        try {
+            DB::beginTransaction();
+            $request->validate([
+                'dosen_id' => 'required|exists:dosens,id'
+            ]);
+
+            $existingAssessment = $seminarproposal->proposalAssessments()
+                ->where('type', 'penguji')
+                ->first();
 
             if ($existingAssessment) {
                 if ($existingAssessment->dosen_id != $request->dosen_id) {
                     $existingAssessment->proposalAssessmentCriterias()->delete();
-
                     $existingAssessment->delete();
-
                     $proposalAssessment = ProposalAssessment::create([
                         "seminar_proposal_id" => $seminarproposal->id,
                         "dosen_id" => $request->dosen_id,
                         "type" => "penguji",
                     ]);
-
-                    $criteria = ProposalCriteria::all();
-                    foreach ($criteria as $criterion) {
-                        ProposalAssessmentCriteria::create([
-                            'proposal_criteria_id' => $criterion->id,
-                            'proposal_assessment_id' => $proposalAssessment->id,
-                            'score' => 0,
-                            'calculated_score' => 0,
-                        ]);
-                    }
+                    $this->createAssessmentCriteria($proposalAssessment);
                 }
             } else {
                 $proposalAssessment = ProposalAssessment::create([
@@ -369,22 +385,35 @@ class SeminarProposalController extends Controller
                     "type" => "penguji",
                 ]);
 
-                $criteria = ProposalCriteria::all();
-                foreach ($criteria as $criterion) {
-                    ProposalAssessmentCriteria::create([
-                        'proposal_criteria_id' => $criterion->id,
-                        'proposal_assessment_id' => $proposalAssessment->id,
-                        'score' => 0,
-                        'calculated_score' => 0,
-                    ]);
-                }
+                $this->createAssessmentCriteria($proposalAssessment);
             }
 
-            // Redirect kembali ke halaman daftar proposal seminar dengan pesan sukses
-            return redirect()->route('seminarproposals.index')->with('success', 'Proposal Seminar berhasil diperbarui.');
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Dosen penguji berhasil ditugaskan'
+            ]);
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return redirect()->route('seminarproposals.edit', $seminarproposal)->with('error', "Terjadi kesalahan. Silakan coba lagi.");
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // Helper function to create assessment criteria
+    private function createAssessmentCriteria($proposalAssessment)
+    {
+        $criteria = ProposalCriteria::all();
+        foreach ($criteria as $criterion) {
+            ProposalAssessmentCriteria::create([
+                'proposal_criteria_id' => $criterion->id,
+                'proposal_assessment_id' => $proposalAssessment->id,
+                'score' => 0,
+                'calculated_score' => 0,
+            ]);
         }
     }
 

@@ -25,8 +25,6 @@
                         <div class="card-body p-0">
                             @if ($logbooks->isEmpty())
                                 <div class="text-center py-5">
-                                    <img src="{{ asset('assets/img/illustrations/empty.svg') }}" alt="Empty State"
-                                        class="img-fluid mb-3" style="max-width: 200px;">
                                     <h4 class="text-muted">Belum Ada Logbook</h4>
                                     <p class="text-muted">Belum ada logbook yang perlu direview saat ini</p>
                                 </div>
@@ -37,6 +35,7 @@
                                             <tr>
                                                 <th class="text-center ps-4">Mahasiswa</th>
                                                 <th class="text-center">Tanggal</th>
+                                                <th class="text-center">Persentasi</th>
                                                 <th class="text-center">Catatan</th>
                                                 <th class="text-center">Status</th>
                                                 <th class="text-end pe-4">Aksi</th>
@@ -63,6 +62,11 @@
                                                     <td class="text-center">
                                                         <span class="text-sm">
                                                             {{ \Carbon\Carbon::parse($logbook->consultation_date)->format('d M Y') }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="text-sm">
+                                                            {{ $logbook->percentage }}
                                                         </span>
                                                     </td>
                                                     <td>

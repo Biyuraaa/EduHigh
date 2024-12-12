@@ -27,7 +27,6 @@ class UpdateResultSeminarRequest extends FormRequest
             "date" => ["required", "date"],
             "time" => ["required"],
             "location" => ["required", "string"],
-            "dosen_id" => ["required", "exists:dosens,id"],
         ];
     }
 }

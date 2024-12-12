@@ -65,7 +65,6 @@ class ResultSeminarReviewController extends Controller
                         ]);
                     }
 
-                    // Tambahkan criteria untuk setiap assessment
                     foreach ($resultAssessments as $resultAssessment) {
                         $resultCriterias = ResultCriteria::where('category', $resultAssessment->category)->get();
                         foreach ($resultCriterias as $resultCriteria) {

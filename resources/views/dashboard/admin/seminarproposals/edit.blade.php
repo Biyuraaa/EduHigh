@@ -78,30 +78,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Examiner Selection -->
-                                <div class="row mb-4">
-                                    <div class="col-md-12">
-                                        <h6 class="text-uppercase text-body text-xs font-weight-bolder mb-3">Pilih Dosen
-                                            Penguji</h6>
-                                        <div class="form-group">
-                                            <label class="form-label">Dosen Penguji</label>
-                                            <select name="dosen_id"
-                                                class="form-select @error('dosen_id') is-invalid @enderror" required>
-                                                <option value="">Pilih Dosen Penguji</option>
-                                                @foreach ($availableDosens as $dosen)
-                                                    <option value="{{ $dosen['id'] }}"
-                                                        {{ $dosen['id'] == $selectedDosenId ? 'selected' : '' }}>
-                                                        {{ $dosen['name'] }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            @error('dosen_id')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <!-- Submit Buttons -->
                                 <div class="d-flex justify-content-end mt-4">
                                     <a href="{{ route('seminarproposals.index') }}" class="btn btn-light me-2">

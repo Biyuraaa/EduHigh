@@ -117,6 +117,9 @@
                                                                 Dosen</th>
                                                             <th
                                                                 class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                                                Persentase</th>
+                                                            <th
+                                                                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                                                                 Catatan</th>
                                                             <th
                                                                 class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">
@@ -156,6 +159,10 @@
                                                                             </h6>
                                                                         </div>
                                                                     </div>
+                                                                </td>
+                                                                <td>
+                                                                    <p class="text-sm font-weight-bold mb-0">
+                                                                        {{ $logbook->percentage }}</p>
                                                                 </td>
                                                                 <td>
                                                                     <p class="text-sm font-weight-bold mb-0">

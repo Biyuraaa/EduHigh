@@ -71,6 +71,7 @@ class LogbookController extends Controller
                 "notes" => $request->notes,
                 "status" => "pending",
                 "date" => $request->date,
+                "percentage" => $request->percentage,
             ]);
             return redirect()->route("logbooks.index")->with("success", "Logbook created successfully");
         } catch (\Exception $e) {
@@ -119,6 +120,7 @@ class LogbookController extends Controller
                 "notes" => $request->notes,
                 "date" => $request->date,
                 "status" => "pending",
+                "percentage" => $request->percentage,
             ]);
             return redirect()->route("logbooks.index")->with("success", "Logbook updated successfully");
         } catch (\Exception $e) {

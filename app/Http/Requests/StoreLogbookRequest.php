@@ -27,6 +27,7 @@ class StoreLogbookRequest extends FormRequest
             "dosen_id" => ["required", "exists:dosens,id"],
             "date" => ["required", "date"],
             "notes" => ["required", "string"],
+            "percentage" => ["nullable",  "integer", "min:0", "max:100"],
         ];
     }
 }

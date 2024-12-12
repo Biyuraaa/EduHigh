@@ -134,16 +134,21 @@
 
                                                             <!-- Action Button -->
                                                             @php
+                                                                $pendingSupervisions = Auth::user()->mahasiswa->superVisions->where(
+                                                                    'status',
+                                                                    'pending',
+                                                                );
                                                                 $existingSupervision = Auth::user()
                                                                     ->mahasiswa->superVisions->where(
                                                                         'dosen_id',
                                                                         $dosen->id,
                                                                     )
                                                                     ->first();
-
                                                                 $isPending =
                                                                     $existingSupervision &&
                                                                     $existingSupervision->status == 'pending';
+
+                                                                $hasAnyPending = $pendingSupervisions->isNotEmpty();
                                                             @endphp
 
                                                             <form action="{{ route('supervisions.store') }}"
@@ -154,12 +159,13 @@
                                                                 <input type="hidden" name="dosen_id"
                                                                     value="{{ $dosen->id }}">
                                                                 <button type="submit"
-                                                                    class="btn {{ $isPending ? 'btn-warning' : 'btn-primary' }} px-4 shadow-sm hover:shadow-lg transition-all"
-                                                                    {{ $isPending ? 'disabled' : '' }}
+                                                                    class="btn text-white {{ $isPending ? 'btn-warning' : 'btn-primary' }} px-4 shadow-sm hover:shadow-lg transition-all"
+                                                                    {{ ($hasAnyPending && !$isPending) || $isPending ? 'disabled' : '' }}
                                                                     data-bs-toggle="tooltip"
-                                                                    title="{{ $isPending ? 'Pengajuan sedang diproses' : 'Ajukan sebagai pembimbing' }}">
+                                                                    title="{{ $isPending ? 'Pengajuan sedang diproses' : ($hasAnyPending ? 'Anda memiliki pengajuan yang sedang diproses' : 'Ajukan sebagai pembimbing') }}">
                                                                     @if ($isPending)
-                                                                        <i class="fas fa-clock me-2"></i>Menunggu
+                                                                        <i class="fas fa-clock me-2"></i>
+                                                                        Menunggu
                                                                     @else
                                                                         <i class="fas fa-user-plus me-2"></i>Ajukan
                                                                     @endif

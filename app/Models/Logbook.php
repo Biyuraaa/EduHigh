@@ -16,6 +16,7 @@ class Logbook extends Model
         "date",
         "comment",
         "status",
+        'percentage',
     ];
 
     public function superVision()

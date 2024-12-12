@@ -67,6 +67,19 @@
                                         </div>
                                     </div>
 
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-control-label">Percentage of Completion</label>
+                                            <input type="number" name="percentage" min="0" max="100"
+                                                class="form-control @error('percentage') is-invalid @enderror"
+                                                placeholder="Enter percentage of completion" required
+                                                value="{{ old('percentage', $logbook->percentage) }}">
+                                            @error('percentage')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+
                                     <input type="hidden" name="mahasiswa_id"
                                         value="{{ Auth::user()->mahasiswa->id }}">
 

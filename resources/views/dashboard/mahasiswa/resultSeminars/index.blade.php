@@ -27,8 +27,9 @@
                                     $hasApprovedProposal =
                                         Auth::user()->mahasiswa->seminarProposal?->result === 'success';
                                     $resultSeminar = Auth::user()->mahasiswa->resultSeminar;
+
                                 @endphp
-                                @if ($resultSeminar->final_score && $resultSeminar->letter_grade)
+                                @if ($resultSeminar && $resultSeminar->final_score && $resultSeminar->letter_grade)
                                     <a href="{{ route('resultSeminars.exportBeritaAcara', $resultSeminar) }}"
                                         class="btn btn-light">
                                         <i class="fas fa-file-pdf me-1"></i> Export PDF Berita Acara
@@ -68,10 +69,6 @@
                                         </div>
                                     </div>
                                     <hr>
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                        data-bs-target="#newSubmissionModal">
-                                        <i class="fas fa-file-alt me-2"></i>Ajukan Seminar Proposal
-                                    </button>
                                 </div>
                             @else
                                 @if (!$resultSeminar)

@@ -129,9 +129,6 @@
                                 <a href="{{ route('profile.edit') }}" class="btn btn-primary">
                                     <i class="fas fa-edit me-2"></i>Edit Profile
                                 </a>
-                                <a href="#" class="btn btn-light ms-2">
-                                    <i class="fas fa-download me-2"></i>Download CV
-                                </a>
                             </div>
                         </div>
                     </div>

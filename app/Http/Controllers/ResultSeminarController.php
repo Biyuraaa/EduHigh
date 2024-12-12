@@ -43,6 +43,13 @@ class ResultSeminarController extends Controller
         }
     }
 
+    public function delegate()
+    {
+        $resultSeminars = ResultSeminar::where('status', 'approved')->get();
+
+        return view("dashboard.dosen.resultSeminars.delegate", compact("resultSeminars"));
+    }
+
     public function evaluation(String $id)
     {
         $resultSeminar = ResultSeminar::findOrFail($id);
@@ -56,6 +63,7 @@ class ResultSeminarController extends Controller
             ->where('dosen_id', Auth::user()->dosen->id)
             ->where('category', 'presentation')
             ->first();
+
 
         return view('dashboard.dosen.resultSeminars.evaluation', compact(
             'resultSeminar',
@@ -348,6 +356,13 @@ class ResultSeminarController extends Controller
     public function edit(ResultSeminar $resultSeminar)
     {
         //
+
+
+        return view('dashboard.admin.resultSeminars.edit', compact('resultSeminar'));
+    }
+
+    public function getAvailableDosens(ResultSeminar $resultSeminar)
+    {
         $usedDosenIds = $resultSeminar->resultAssessments()
             ->whereIn('type', ['pembimbing_1', 'pembimbing_2', 'penguji_1'])
             ->pluck('dosen_id')
@@ -366,7 +381,10 @@ class ResultSeminarController extends Controller
         $pengujiAssessment = $resultSeminar->resultAssessments()->where('type', 'penguji_2')->first();
         $selectedDosenId = $pengujiAssessment ? $pengujiAssessment->dosen_id : null;
 
-        return view('dashboard.admin.resultSeminars.edit', compact('resultSeminar', 'availableDosens', 'selectedDosenId'));
+        return response()->json([
+            'dosens' => $availableDosens,
+            'selectedDosenId' => $selectedDosenId
+        ]);
     }
 
     /**
@@ -384,27 +402,83 @@ class ResultSeminarController extends Controller
                 "location" => $request->location,
             ]);
 
-            $existingAssessments = $resultSeminar->resultAssessments()->where('type', 'penguji_2')->get();
-
-            if ($existingAssessments->isNotEmpty()) {
-                if ($existingAssessments->first()->dosen_id != $request->dosen_id) {
-                    foreach ($existingAssessments as $assessment) {
-                        $assessment->resultAssessmentCriterias()->delete();
-                    }
-
-                    $resultSeminar->resultAssessments()->where('type', 'penguji_2')->delete();
-
-                    $this->createResultAssessmentWithCategories($resultSeminar, $request->dosen_id, 'penguji_2');
-                }
-            } else {
-                $this->createResultAssessmentWithCategories($resultSeminar, $request->dosen_id, 'penguji_2');
-            }
-
-            // Redirect ke halaman daftar dengan pesan sukses
             return redirect()->route('resultSeminars.index')->with('success', 'Proposal Seminar berhasil diperbarui.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return redirect()->route('resultSeminars.edit', $resultSeminar)->with('error', "Terjadi kesalahan. Silakan coba lagi.");
+        }
+    }
+
+
+    public function assignPenguji(Request $request, ResultSeminar $resultSeminar)
+    {
+        try {
+            DB::beginTransaction();
+
+            $request->validate([
+                'dosen_id' => 'required|exists:dosens,id'
+            ]);
+
+            $assessmentTypes = ['material', 'presentation'];
+
+            foreach ($assessmentTypes as $type) {
+                $existingAssessment = $resultSeminar->resultAssessments()
+                    ->where('type', 'penguji_2')
+                    ->where('category', $type)
+                    ->first();
+
+                if ($existingAssessment) {
+                    if ($existingAssessment->dosen_id != $request->dosen_id) {
+                        $existingAssessment->resultAssessmentCriterias()->delete();
+                        $existingAssessment->delete();
+
+                        $resultAssessment = ResultAssessment::create([
+                            "result_seminar_id" => $resultSeminar->id,
+                            "dosen_id" => $request->dosen_id,
+                            "type" => "penguji_2",
+                            "category" => $type,
+                        ]);
+
+                        $this->createResultAssessmentCriteria($resultAssessment);
+                    }
+                } else {
+                    $resultAssessment = ResultAssessment::create([
+                        "result_seminar_id" => $resultSeminar->id,
+                        "dosen_id" => $request->dosen_id,
+                        "type" => "penguji_2",
+                        "category" => $type,
+                    ]);
+
+                    $this->createResultAssessmentCriteria($resultAssessment);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Dosen penguji berhasil ditugaskan'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // Helper function to create assessment criteria
+    private function createResultAssessmentCriteria($resultAssessment)
+    {
+        $criteria = ResultCriteria::all();
+        foreach ($criteria as $criterion) {
+            ResultAssessmentCriteria::create([
+                'result_criteria_id' => $criterion->id,
+                'result_assessment_id' => $resultAssessment->id,
+                'score' => 0,
+                'calculated_score' => 0,
+            ]);
         }
     }
 

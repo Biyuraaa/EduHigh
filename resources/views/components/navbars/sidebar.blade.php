@@ -38,7 +38,7 @@
                     <a class="nav-link text-white {{ $activePage == 'proposal-criteria' ? 'active bg-gradient-primary' : '' }} "
                         href="{{ route('proposalCriterias.index') }}">
                         <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="material-icons opacity-10">content_paste</i>
+                            <i class="material-icons opacity-10">rule</i>
                         </div>
                         <span class="nav-link-text ms-1">Kriteria Seminar Proposal</span>
                     </a>
@@ -136,9 +136,28 @@
                         <a class="nav-link text-white {{ $activePage == 'koordinasi-pembimbing' ? ' active bg-gradient-primary' : '' }} "
                             href="{{ route('supervisions.showKoordinasiPembimbing') }}">
                             <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="material-icons opacity-10">people</i>
+                                <i class="material-icons opacity-10">groups</i>
                             </div>
                             <span class="nav-link-text ms-1">Koordinasi Pembimbing</span>
+                        </a>
+                    </li>
+                @elseif(Auth::user()->dosen->role == 'kaprodi')
+                    <li class="nav-item">
+                        <a class="nav-link text-white {{ $activePage == 'delegate-seminar-proposal' ? ' active bg-gradient-primary' : '' }}  "
+                            href="{{ route('seminarproposals.delegate') }}">
+                            <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="material-icons opacity-10">book</i>
+                            </div>
+                            <span class="nav-link-text ms-1">Delegasi Seminar Proposal</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white {{ $activePage == 'delegate-seminar-hasil' ? ' active bg-gradient-primary' : '' }}  "
+                            href="{{ route('resultSeminars.delegate') }}">
+                            <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="material-icons opacity-10">grading</i>
+                            </div>
+                            <span class="nav-link-text ms-1">Delegasi Seminar Hasil</span>
                         </a>
                     </li>
                 @endif
@@ -146,7 +165,7 @@
                     <a class="nav-link text-white {{ $activePage == 'pengajuan-mahasiswa' ? ' active bg-gradient-primary' : '' }} "
                         href="{{ route('supervisions.request') }}">
                         <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="material-icons opacity-10">people</i>
+                            <i class="material-icons opacity-10">person_add</i>
                         </div>
                         <span class="nav-link-text ms-1">Pengajuan Mahasiswa</span>
                     </a>
@@ -155,7 +174,7 @@
                     <a class="nav-link text-white {{ $activePage == 'pengajuan-sempro' ? ' active bg-gradient-primary' : '' }}  "
                         href="{{ route('seminarproposals.request') }}">
                         <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="material-icons opacity-10">people</i>
+                            <i class="material-icons opacity-10">preview</i>
                         </div>
                         <span class="nav-link-text ms-1">Pengajuan Seminar Proposal</span>
                     </a>
@@ -164,7 +183,7 @@
                     <a class="nav-link text-white {{ $activePage == 'pengajuan-semhas' ? ' active bg-gradient-primary' : '' }}  "
                         href="{{ route('resultSeminars.request') }}">
                         <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="material-icons opacity-10">people</i>
+                            <i class="material-icons opacity-10">assessment</i>
                         </div>
                         <span class="nav-link-text ms-1">Pengajuan Seminar Hasil</span>
                     </a>
@@ -173,7 +192,7 @@
                     <a class="nav-link text-white {{ $activePage == 'pengajuan-bimbingan' ? ' active bg-gradient-primary' : '' }}  "
                         href="{{ route('appointments.index') }}">
                         <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="material-icons opacity-10">people</i>
+                            <i class="material-icons opacity-10">schedule_send</i>
                         </div>
                         <span class="nav-link-text ms-1">Pengajuan Bimbingan</span>
                     </a>
@@ -182,7 +201,7 @@
                     <a class="nav-link text-white {{ $activePage == 'pengajuan-logbook' ? ' active bg-gradient-primary' : '' }}  "
                         href="{{ route('logbooks.index') }}">
                         <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="material-icons opacity-10">people</i>
+                            <i class="material-icons opacity-10">library_books</i>
                         </div>
                         <span class="nav-link-text ms-1">Pengajuan Logbook</span>
                     </a>
@@ -191,7 +210,7 @@
                     <a class="nav-link text-white {{ $activePage == 'mahasiswa-bimbingan' ? ' active bg-gradient-primary' : '' }} "
                         href="{{ route('supervisions.index') }}">
                         <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="material-icons opacity-10">people</i>
+                            <i class="material-icons opacity-10">supervised_user_circle</i>
                         </div>
                         <span class="nav-link-text ms-1">Mahasiswa Bimbingan</span>
                     </a>
@@ -201,11 +220,12 @@
                     <a class="nav-link text-white {{ $activePage == 'jadwal-bimbingan' ? ' active bg-gradient-primary' : '' }}  "
                         href="{{ route('schedules.index') }}">
                         <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="material-icons opacity-10">schedule</i>
+                            <i class="material-icons opacity-10">calendar_today</i>
                         </div>
                         <span class="nav-link-text ms-1">Jadwal Bimbingan</span>
                     </a>
                 </li>
+
 
 
 
@@ -216,7 +236,7 @@
                     <a class="nav-link text-white {{ $activePage == 'seminar-proposal' ? ' active bg-gradient-primary' : '' }}  "
                         href="{{ route('seminarproposals.index') }}">
                         <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="material-icons opacity-10">people</i>
+                            <i class="material-icons opacity-10">book</i>
                         </div>
                         <span class="nav-link-text ms-1">Seminar Proposal</span>
                     </a>
@@ -225,7 +245,7 @@
                     <a class="nav-link text-white {{ $activePage == 'seminar-hasil' ? ' active bg-gradient-primary' : '' }}  "
                         href="{{ route('resultSeminars.index') }}">
                         <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="material-icons opacity-10">people</i>
+                            <i class="material-icons opacity-10">grading</i>
                         </div>
                         <span class="nav-link-text ms-1">Seminar Hasil</span>
                     </a>

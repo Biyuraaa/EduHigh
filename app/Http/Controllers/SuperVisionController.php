@@ -177,41 +177,42 @@ class SuperVisionController extends Controller
         return view('dashboard.dosen.supervisions.request', compact('students'));
     }
 
-    public function approve(Request $request)
-    {
-        $request->validate([
-            'supervision_id' => 'required|exists:super_visions,id',
-        ]);
-        try {
-            $supervision = SuperVision::find($request->supervision_id);
-            $supervision->status = 'approved';
-            $supervision->dosen_pembimbing = 'pembimbing_1';
-            $supervision->save();
-            SuperVision::where('mahasiswa_id', $supervision->mahasiswa_id)
-                ->where('status', 'pending')
-                ->where('id', '!=', $supervision->id)
-                ->delete();
-            return redirect()->route('supervisions.request')->with('success', 'Supervisi berhasil diterima');
-        } catch (\Exception $e) {
-            Log::error('Error : ' . $e->getMessage());
-            return redirect()->route('supervisions.request')->with('error', 'Suprervisi gagal diterima');
-        }
-    }
-
-    public function reject(Request $request)
+    public function updateStatus(Request $request, $id, $action)
     {
         $request->validate([
             'supervision_id' => 'required|exists:super_visions,id',
             'comment' => 'nullable|string',
         ]);
-        $supervision = SuperVision::find(request('supervision_id'));
-        $supervision->status = 'rejected';
-        $supervision->comment = request('comment');
-        $supervision->save();
 
-        return redirect()->route('supervisions.request')->with('success', 'Supervisi berhasil ditolak');
+        try {
+            $supervision = SuperVision::findOrFail($id);
+
+            if ($action === 'approve') {
+                $supervision->status = 'approved';
+                $supervision->dosen_pembimbing = 'pembimbing_1';
+
+                SuperVision::where('mahasiswa_id', $supervision->mahasiswa_id)
+                    ->where('status', 'pending')
+                    ->where('id', '!=', $supervision->id)
+                    ->delete();
+
+                $message = 'Supervisi berhasil diterima';
+            } elseif ($action === 'reject') {
+                $supervision->status = 'rejected';
+                $supervision->comment = $request->comment;
+                $message = 'Supervisi berhasil ditolak';
+            } else {
+                return response()->json(['success' => false, 'message' => 'Invalid action'], 400);
+            }
+
+            $supervision->save();
+
+            return response()->json(['success' => true, 'message' => $message]);
+        } catch (\Exception $e) {
+            Log::error('Error : ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan saat memproses permintaan'], 500);
+        }
     }
-
 
     public function assignPembimbing2(Request $request)
     {

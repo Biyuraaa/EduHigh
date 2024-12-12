@@ -38,9 +38,9 @@
                                     <div class="avatar-upload">
                                         <div class="avatar-preview"
                                             style="width: 150px; height: 150px; margin: 0 auto;">
-                                            <img src="{{ Auth::user()->image ? asset('storage/images/users/' . Auth::user()->image) : 'https://via.placeholder.com/150' }}"
-                                                alt="Profile Picture" class="rounded-circle img-fluid" id="profilePic"
-                                                style="width: 150px; height: 150px; object-fit: cover;">
+                                            <img src="{{ Auth::user()->image ? asset('storage/images/users/' . Auth::user()->image) : asset('assets/img/default.png') }}"
+                                                }}" alt="Profile Picture" class="rounded-circle img-fluid"
+                                                id="profilePic" style="width: 150px; height: 150px; object-fit: cover;">
                                         </div>
                                         <div class="avatar-edit">
                                             <label for="profilePicInput"

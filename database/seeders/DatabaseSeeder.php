@@ -14,6 +14,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+
+        $this->call(KBKSeeder::class);
+        $this->call(ResultCriteriaSeeder::class);
+        $this->call(ProposalCriteriaSeeder::class);
+
+
         User::create([
             'name' => 'Admin',
             'email' => 'admin@admin.com',
@@ -48,6 +54,20 @@ class DatabaseSeeder extends Seeder
             'nidn' => '0987654321',
             'kbk_id' => 1,
             'role' => 'dosen_koordinator',
+        ]);
+
+        $kaprodi = User::create([
+            'name' => 'Kaprodi',
+            'email' => 'kaprodi@dosen.com',
+            'password' => bcrypt('kaprodi'),
+            'role' => 'dosen',
+        ]);
+
+        Dosen::create([
+            'user_id' => $kaprodi->id,
+            'nidn' => '1234509876',
+            'kbk_id' => 1,
+            'role' => 'kaprodi',
         ]);
 
         Dosen::factory(10)->create();

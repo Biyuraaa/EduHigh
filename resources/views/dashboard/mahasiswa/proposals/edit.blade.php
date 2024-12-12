@@ -297,7 +297,8 @@
                                 <div class="card mb-4">
                                     <div class="card-header bg-light">
                                         <h5 class="mb-0">
-                                            <i class="fas fa-flask me-2 text-primary"></i>VIII. Metode Penelitian
+                                            <i class="fas fa-flask me-2 text-primary"></i>VIII. Layout Pemecahan
+                                            Masalah
                                         </h5>
                                     </div>
                                     <div class="card-body">

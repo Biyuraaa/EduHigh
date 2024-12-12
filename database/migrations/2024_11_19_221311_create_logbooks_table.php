@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->date('date')->nullable();
             $table->text('comments')->nullable(); // Komentar dosen
+            $table->integer('percentage')->nullable();
             $table->enum('status', ['pending', 'confirmed', 'rejected'])->default('pending'); // Status verifikasi
             $table->timestamp('verified_at')->nullable(); // Waktu verifikasi
             $table->timestamps();

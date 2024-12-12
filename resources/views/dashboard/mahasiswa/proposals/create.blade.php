@@ -229,7 +229,7 @@
                                     <div
                                         class="card-header bg-light d-flex justify-content-between align-items-center">
                                         <h5 class="mb-0">
-                                            <i class="fas fa-book me-2 text-primary"></i>VIII. Metodologi Penelitian
+                                            <i class="fas fa-book me-2 text-primary"></i>VIII. Layout Pemecahan Masalah
                                         </h5>
                                     </div>
                                     <div class="card-body">

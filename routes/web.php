@@ -49,6 +49,7 @@ Route::middleware(['auth', 'verified'])->prefix('/dashboard')->group(function ()
     Route::resource('schedules', ScheduleController::class);
     Route::resource('proposalCriterias', ProposalCriteriaController::class);
     Route::post('/resultSeminars/resubmission', [ResultSeminarController::class, 'resubmission'])->name('resultSeminars.resubmission');
+    Route::get('/resultSeminars/delegate', [ResultSeminarController::class, 'delegate'])->name('resultSeminars.delegate');
     Route::get('/resultSeminars/request', [ResultSeminarController::class, 'request'])->name('resultSeminars.request');
     Route::get('/resultSeminars/{resultSeminar}/evaluation', [resultSeminarController::class, 'evaluation'])->name('resultSeminars.evaluation');
     Route::put('/resultSeminars/{resultSeminar}/updateEvaluation', [ResultSeminarController::class, 'updateEvaluation'])->name('resultSeminars.updateEvaluation');
@@ -56,6 +57,7 @@ Route::middleware(['auth', 'verified'])->prefix('/dashboard')->group(function ()
     Route::post('/resultSeminarReview', [ResultSeminarReviewController::class, 'review'])->name('resultSeminarReview');
     Route::resource('resultSeminars', ResultSeminarController::class);
     Route::get('/seminarproposals/{seminarproposal}/evaluation', [SeminarProposalController::class, 'evaluation'])->name('seminarproposal.evaluation');
+    Route::get('/seminarproposals/delegate', [SeminarProposalController::class, 'delegate'])->name('seminarproposals.delegate');
     Route::put('/seminarproposals/{seminarproposal}/updateEvaluation', [SeminarProposalController::class, 'updateEvaluation'])->name('seminarproposal.updateEvaluation');
     Route::post('/seminarproposals/resubmission', [SeminarProposalController::class, 'resubmission'])->name('seminarproposals.resubmission');
     Route::get('/seminarproposals/request', [SeminarProposalController::class, 'request'])->name('seminarproposals.request');
@@ -67,8 +69,23 @@ Route::middleware(['auth', 'verified'])->prefix('/dashboard')->group(function ()
     Route::get('/supervisions/request', [SuperVisionController::class, 'request'])->name('supervisions.request');
     Route::get('/supervisions/dosen/{dosen}', [SuperVisionController::class, 'showDosen'])->name('supervisions.showDosen');
     Route::get('/supervisions/mahasiswa/{mahasiswa}', [SuperVisionController::class, 'showMahasiswa'])->name('supervisions.showMahasiswa');
-    Route::patch('/supervisions/{supervision}/approve', [SuperVisionController::class, 'approve'])->name('supervisions.approve');
-    Route::patch('/supervisions/{supervision}/reject', [SuperVisionController::class, 'reject'])->name('supervisions.reject');
+    Route::patch('/supervisions/{supervision}/{action}', [SuperVisionController::class, 'updateStatus'])
+        ->name('supervisions.updateStatus')
+        ->where('action', 'approve|reject');
+    Route::get('/seminarproposals/{seminarproposal}/available-dosens', [SeminarProposalController::class, 'getAvailableDosens'])
+        ->name('seminarproposals.available-dosens');
+    Route::get('/resultSeminars/{resultSeminar}/available-dosens', [ResultSeminarController::class, 'getAvailableDosens'])
+        ->name('resultSeminars.available-dosens');
+    Route::put(
+        '/resultSeminars/{resultSeminar}/assign-penguji',
+        [ResultSeminarController::class, 'assignPenguji']
+    )->name('resultSeminars.assign-penguji');
+
+    Route::put(
+        '/seminarproposals/{seminarproposal}/assign-penguji',
+        [SeminarProposalController::class, 'assignPenguji']
+    )
+        ->name('seminarproposals.assign-penguji');
     Route::resource('supervisions', SuperVisionController::class);
     Route::resource('appointments', AppointmentController::class);
     Route::get('/logbooks/filter', [LogbookController::class, 'filter'])->name('logbooks.filter');

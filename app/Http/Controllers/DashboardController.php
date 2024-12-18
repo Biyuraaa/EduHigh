@@ -5,13 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Logbook;
+use App\Models\ResultSeminar;
 use App\Models\Schedule;
 use App\Models\SeminarProposal;
 use App\Models\SuperVision;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -25,7 +23,6 @@ class DashboardController extends Controller
         } elseif ($user->role == 'dosen') {
             $dosenId = $user->dosen->id;
 
-            // Optimize existing queries
             $studentsSupervised = SuperVision::where('dosen_id', $dosenId)->count();
 
             $consultationsCount = Logbook::whereHas('superVision', function ($query) use ($dosenId) {
@@ -40,7 +37,6 @@ class DashboardController extends Controller
                 ->where('status', 'completed')
                 ->count();
 
-            // Optimize and limit upcoming schedules
             $upcomingSchedules = Schedule::where('dosen_id', $dosenId)
                 ->where('schedule_date', '>=', now())
                 ->orderBy('schedule_date')
@@ -67,7 +63,53 @@ class DashboardController extends Controller
                 "upcomingAppointments"
             ));
         } else {
-            return view('dashboard.mahasiswa.index');
+            $mahasiswaId = $user->mahasiswa->id;
+            $supervisionStatus = SuperVision::where('mahasiswa_id', $mahasiswaId)
+                ->where('status', 'approved')
+                ->with('dosen.user')
+                ->get();
+            $consultationCount = Logbook::whereHas('superVision', function ($query) use ($mahasiswaId) {
+                $query->where('mahasiswa_id', $mahasiswaId);
+            })->count();
+
+            $latestConsultations = Logbook::whereHas('superVision', function ($query) use ($mahasiswaId) {
+                $query->where('mahasiswa_id', $mahasiswaId);
+            })
+                ->with('superVision.dosen.user')
+                ->orderBy('date', 'desc')
+                ->take(5)
+                ->get();
+
+            $upcomingAppointments = Appointment::with(['schedule.dosen.user'])
+                ->where('mahasiswa_id', $mahasiswaId)
+                ->whereHas('schedule', function ($query) {
+                    $query->where('schedule_date', '>=', now());
+                })
+                ->join('schedules', 'appointments.schedule_id', '=', 'schedules.id')
+                ->orderBy('schedules.schedule_date', 'asc')
+                ->orderBy('schedules.start_time', 'asc')
+                ->select('appointments.*')
+                ->take(5)
+                ->get();
+
+            $proposalStatus = SeminarProposal::where('mahasiswa_id', $mahasiswaId)
+                ->latest()
+                ->first();
+
+            $resultSeminarStatus = ResultSeminar::where('mahasiswa_id', $mahasiswaId)
+                ->latest()
+                ->first();
+
+
+
+            return view('dashboard.mahasiswa.index', compact(
+                'supervisionStatus',
+                'consultationCount',
+                'latestConsultations',
+                'upcomingAppointments',
+                'proposalStatus',
+                'resultSeminarStatus'
+            ));
         }
     }
 }

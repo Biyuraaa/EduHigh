@@ -19,21 +19,16 @@ class LogbookController extends Controller
      */
     public function index()
     {
-        // Periksa peran user yang login
         if (Auth::user()->role == "dosen") {
-            // Untuk dosen: Ambil logbook mahasiswa yang dia supervisi dengan status "pending"
             $logbooks = Logbook::whereHas('superVision', function ($query) {
-                $query->where('dosen_id', Auth::user()->dosen->id); // Ambil logbook berdasarkan dosen yang login
+                $query->where('dosen_id', Auth::user()->dosen->id);
             })->where('status', 'pending')->paginate(10);
 
-            // Tampilkan ke halaman dosen
             return view("dashboard.dosen.logbooks.index", compact("logbooks"));
         } else if (Auth::user()->role == "mahasiswa") {
             $logbooks = Logbook::whereHas('superVision', function ($query) {
-                $query->where('mahasiswa_id', Auth::user()->mahasiswa->id); // Ambil logbook berdasarkan mahasiswa yang login
+                $query->where('mahasiswa_id', Auth::user()->mahasiswa->id);
             })->paginate(10);
-
-            // Tampilkan ke halaman mahasiswa
             return view("dashboard.mahasiswa.logbooks.index", compact("logbooks"));
         }
     }

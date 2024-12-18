@@ -56,7 +56,7 @@
                             </div>
                             <div class="text-end pt-1">
                                 <p class="text-sm mb-0 text-capitalize">Seminar Mendatang</p>
-                                <h4 class="mb-0"></h4>
+                                <h4 class="mb-0">`</h4>
                             </div>
                         </div>
                         <hr class="dark horizontal my-0">
@@ -172,5 +172,6 @@
                     <!-- Any additional JavaScript can be added here -->
                 @endpush
             </div>
+        </div>
     </main>
 </x-layout>
